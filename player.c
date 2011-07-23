@@ -2,43 +2,68 @@
 
 int player_message_handler(game_object_t *obj, message_t mes)
 {
-    if(mes.type == message_type_hash("sdl-event"))
+    if(mes.type == lapis_hash("sdl-event"))
     {
         SDL_Event event = *(SDL_Event *)mes.data;
         if(event.type == SDL_KEYDOWN)
         {
             switch(event.key.keysym.sym)
             {
-            case SDLK_a:
-                LOG("pressed a\n");
-                return 1;
-            case SDLK_UP:
+            case SDLK_KP8:
             {
                 player_object_t *data = obj->data;
-                data->y -=10;
+                data->y -=1;
                 return 1;
             }
-            case SDLK_DOWN:
+            case SDLK_KP2:
             {
                 player_object_t *data = obj->data;
-                data->y +=10;
+                data->y +=1;
                 return 1;
             }
-            case SDLK_LEFT:
+            case SDLK_KP4:
             {
                 player_object_t *data = obj->data;
-                data->x -=10;
+                data->x -=1;
                 return 1;
             }
-            case SDLK_RIGHT:
+            case SDLK_KP6:
             {
                 player_object_t *data = obj->data;
-                data->x +=10;
+                data->x +=1;
+                return 1;
+            }
+            case SDLK_KP7:
+            {
+                player_object_t *data = obj->data;
+                data->y -=1;
+                data->x -=1;
+                return 1;
+            }
+            case SDLK_KP9:
+            {
+                player_object_t *data = obj->data;
+                data->y -=1;
+                data->x +=1;
+                return 1;
+            }
+            case SDLK_KP1:
+            {
+                player_object_t *data = obj->data;
+                data->x -=1;
+                data->y +=1;
+                return 1;
+            }
+            case SDLK_KP3:
+            {
+                player_object_t *data = obj->data;
+                data->x +=1;
+                data->y +=1;
                 return 1;
             }
             default:
                 break;
-            }
+            }           
         }
     }
 
@@ -48,11 +73,62 @@ int player_message_handler(game_object_t *obj, message_t mes)
 void player_render(engine_t *engine, game_object_t *obj, float interpolation)
 {
     player_object_t *data = obj->data;
-    lsdl_draw_image(engine, image_render_set_get_image("test_set", data->anim_frame), data->x, data->y, 32, 32);
+    lsdl_draw_image(engine, image_loader_get("player"),
+                    map_view_pos_to_screen_x(data->mv, data->x),
+                    map_view_pos_to_screen_y(data->mv, data->y),
+                    32,
+                    32,
+                    1.0);
 }
 
 void player_update(engine_t *engine, game_object_t *obj, unsigned int ticks)
 {
+
+    /* move the map based on where the player is */
+
+    /* TODO: put dir on the heap and make these synchronous calls */
+
+    static enum direction4 dir;
+
     player_object_t *data = obj->data;
-    data->anim_frame = ticks % data->num_frames;
+    if( map_view_pos_to_screen_y(data->mv, data->y) > (768-150) )
+    {
+        dir = DOWN;
+        message_t message = message_construct(NULL, 
+                                              NULL,
+                                              "map-move",
+                                              &dir);
+        message_deliver(message, ASYNC);
+        
+    }
+    if( map_view_pos_to_screen_y(data->mv, data->y) < 150 )
+    {
+        dir = UP;
+        message_t message = message_construct(NULL, 
+                                              NULL,
+                                              "map-move",
+                                              &dir);
+        message_deliver(message, ASYNC);
+        
+    }
+    if( map_view_pos_to_screen_x(data->mv, data->x) < 150 )
+    {
+        dir = LEFT;
+        message_t message = message_construct(NULL, 
+                                              NULL,
+                                              "map-move",
+                                              &dir);
+        message_deliver(message, ASYNC);
+        
+    }
+    if( map_view_pos_to_screen_x(data->mv, data->x) > (1024-150) )
+    {
+        dir = RIGHT;
+        message_t message = message_construct(NULL, 
+                                              NULL,
+                                              "map-move",
+                                              &dir);
+        message_deliver(message, ASYNC);
+        
+    }        
 }

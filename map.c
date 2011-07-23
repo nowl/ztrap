@@ -1,14 +1,23 @@
 #include "ztrap.h"
 
 map_t *
-map_create(int x, int y, int w, int h)
+map_create(int w, int h)
 {
     map_t *r = malloc(sizeof(*r));
     r->tiles = malloc(sizeof(*r->tiles) * w * h);
+    r->ambiance = malloc(sizeof(*r->ambiance) * w * h);
     r->width = w;
     r->height = h;
-    r->upper_left_x = x;
-    r->upper_left_y = y;
+
+    int i;
+    for(i=0; i<w*h; i++)
+    {
+        float a = random_float();
+        if(a < 0.25) a = 0.25;
+        if(a > 0.9) a = 0.9;
+        r->ambiance[i] = a;
+    }
+
     return r;
 }
 
@@ -16,6 +25,7 @@ void
 map_destroy(map_t *map)
 {
     free(map->tiles);
+    free(map->ambiance);
     free(map);
 }
 
@@ -26,13 +36,22 @@ map_set_value(map_t *map, int x, int y, int value)
         map->tiles[map->width * y + x] = value;
 }
 
-static int
+int
 map_get_value(map_t *map, int x, int y)
 {
     if(x >= 0 && x < map->width && y >= 0 && y < map->height)
         return map->tiles[map->width * y + x];
 
     return -1;
+}
+
+float
+map_get_ambiance(map_t *map, int x, int y)
+{
+    if(x >= 0 && x < map->width && y >= 0 && y < map->height)
+        return map->ambiance[map->width * y + x];
+
+    return 1.0;
 }
 
 void
@@ -47,8 +66,6 @@ map_fill_region(map_t *map, int xs, int ys, int xe, int ye, int value)
 static void
 display_map(FILE *fout, map_t *map)
 {
-    fprintf(fout, "upper_left: %d,%d\n", map->upper_left_x, map->upper_left_y);
-    fprintf(fout, "width: %d\nheight %d\n", map->width, map->height);
     fprintf(fout, "tiles\n");
     int x, y;
     for(y=0; y<map->height; y++)

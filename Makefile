@@ -7,7 +7,8 @@ LIBS = -lGL -lGLU $(shell sdl-config --libs) -lSDL_image -lSDL_mixer -lSDL_ttf -
 SRCS = \
 	main.c \
 	player.c \
-	map.c
+	map.c \
+	map_view.c
 
 OBJS = $(SRCS:.c=.o)
 

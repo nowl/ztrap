@@ -7,21 +7,36 @@
 
 typedef struct player_object player_object_t;
 typedef struct map map_t;
+typedef struct map_view map_view_t;
 
 struct player_object
 {
     int x, y;
-    int anim_frame;
-    unsigned int num_frames;
+    map_view_t *mv;
 };
 
 struct map
 {
-    int upper_left_x;
-    int upper_left_y;
     int width;
     int height;
     int *tiles;
+    float *ambiance;
+};
+
+enum direction4
+{
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
+};
+
+struct map_view
+{
+    map_t *map;
+    int screen_pos_x, screen_pos_y;
+    int xs, xe, ys, ye;
+    game_object_t *game_object;
 };
 
 /* player */
@@ -32,12 +47,21 @@ void player_update(engine_t *engine, game_object_t *obj, unsigned int ticks);
 
 /* map */
 
-map_t *map_create(int x, int y, int w, int h);
+map_t *map_create(int w, int h);
 void   map_destroy(map_t *map);
 void   debug_map_display(map_t *map);
 void   debug_map_display_file(map_t *map);
 void   map_fill_region(map_t *map, int ul_x, int ul_y, int w, int h, int value);
 void   map_build_bsp(map_t *map, float rec_factor, float decay_factor);
 void   map_random_replace(map_t *map, int orig, int new, float prob);
+int    map_get_value(map_t *map, int x, int y);
+float  map_get_ambiance(map_t *map, int x, int y);
+
+/* map_view */
+
+map_view_t *map_view_create(int screen_pos_x, int screen_pos_y, int width, int height);
+void        map_view_destroy(map_view_t *mv);
+int         map_view_pos_to_screen_x(map_view_t *mv, int x);
+int         map_view_pos_to_screen_y(map_view_t *mv, int y);
 
 #endif  /* __ZTRAP_H__ */
