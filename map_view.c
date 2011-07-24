@@ -52,6 +52,23 @@ message_handler(game_object_t *obj, message_t *mes)
                 break;
         }
     }
+    else if(mes->type == lapis_hash("player-attempt-move"))
+    {
+        map_view_t *mv = obj->data;
+        map_loc_t *loc = mes->data;
+        if( map_get_value(mv->map, loc->x, loc->y) != 1 )
+        {
+            /* send collision with wall back */
+
+            message_t *message =
+                message_create(NULL,
+                               game_object_get_by_name("player"),
+                               "move-clear",
+                               NULL,
+                               0);
+            message_deliver(message, SYNC);
+        }
+    }
     
     return 0;
 }

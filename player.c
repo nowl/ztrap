@@ -1,5 +1,19 @@
 #include "ztrap.h"
 
+static void
+send_attempt_move_to_map_view(player_object_t *player)
+{
+    map_loc_t *loc = malloc(sizeof(*loc));
+    loc->x = player->nx;
+    loc->y = player->ny;
+    message_t *message = message_create(NULL, 
+                                        player->mv->game_object,
+                                        "player-attempt-move",
+                                        loc,
+                                        1);
+    message_deliver(message, SYNC);
+}
+
 int player_message_handler(game_object_t *obj, message_t *mes)
 {
     if(mes->type == lapis_hash("sdl-event"))
@@ -12,59 +26,77 @@ int player_message_handler(game_object_t *obj, message_t *mes)
             case SDLK_KP8:
             {
                 player_object_t *data = obj->data;
-                data->y -=1;
+                data->nx = data->x;
+                data->ny = data->y - 1;
+                send_attempt_move_to_map_view(data);
                 return 1;
             }
             case SDLK_KP2:
             {
                 player_object_t *data = obj->data;
-                data->y +=1;
+                data->nx = data->x;
+                data->ny = data->y + 1;
+                send_attempt_move_to_map_view(data);                
                 return 1;
             }
             case SDLK_KP4:
             {
                 player_object_t *data = obj->data;
-                data->x -=1;
+                data->nx = data->x - 1;
+                data->ny = data->y;
+                send_attempt_move_to_map_view(data);
                 return 1;
             }
             case SDLK_KP6:
             {
                 player_object_t *data = obj->data;
-                data->x +=1;
+                data->nx = data->x + 1;
+                data->ny = data->y;
+                send_attempt_move_to_map_view(data);
                 return 1;
             }
             case SDLK_KP7:
             {
                 player_object_t *data = obj->data;
-                data->y -=1;
-                data->x -=1;
+                data->nx = data->x - 1;
+                data->ny = data->y - 1;
+                send_attempt_move_to_map_view(data);
                 return 1;
             }
             case SDLK_KP9:
             {
                 player_object_t *data = obj->data;
-                data->y -=1;
-                data->x +=1;
+                data->nx = data->x + 1;
+                data->ny = data->y - 1;
+                send_attempt_move_to_map_view(data);
                 return 1;
             }
             case SDLK_KP1:
             {
                 player_object_t *data = obj->data;
-                data->x -=1;
-                data->y +=1;
+                data->nx = data->x - 1;
+                data->ny = data->y + 1;
+                send_attempt_move_to_map_view(data);
                 return 1;
             }
             case SDLK_KP3:
             {
                 player_object_t *data = obj->data;
-                data->x +=1;
-                data->y +=1;
+                data->nx = data->x + 1;
+                data->ny = data->y + 1;
+                send_attempt_move_to_map_view(data);
                 return 1;
             }
             default:
                 break;
             }           
         }
+    }
+    else if(mes->type == lapis_hash("move-clear"))
+    {
+        player_object_t *data = obj->data;
+        data->x = data->nx;
+        data->y = data->ny;
     }
 
     return 0;

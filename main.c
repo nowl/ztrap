@@ -53,8 +53,8 @@ int main(int argc, char *argv[])
                                   "sdl-event");
     
     player_object_t player_data;
-    player_data.x = 0;
-    player_data.y = 0;
+    player_data.x = 1;
+    player_data.y = 1;
 
     game_object_t * player = game_object_create("player", &player_data);
     game_object_set_recv_callback_c_func(player, player_message_handler);

@@ -8,10 +8,11 @@
 typedef struct player_object player_object_t;
 typedef struct map map_t;
 typedef struct map_view map_view_t;
+typedef struct map_loc map_loc_t;
 
 struct player_object
 {
-    int x, y;
+    int x, y, nx, ny;
     map_view_t *mv;
 };
 
@@ -37,6 +38,11 @@ struct map_view
     int screen_pos_x, screen_pos_y;
     int xs, xe, ys, ye;
     game_object_t *game_object;
+};
+
+struct map_loc
+{
+    int x, y;
 };
 
 /* player */
