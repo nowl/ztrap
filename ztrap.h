@@ -8,7 +8,7 @@
 typedef struct player_object player_object_t;
 typedef struct map map_t;
 typedef struct map_view map_view_t;
-typedef struct map_loc map_loc_t;
+typedef struct player_movement player_movement_t;
 
 struct player_object
 {
@@ -32,6 +32,19 @@ enum direction4
     RIGHT
 };
 
+enum direction8
+{
+    N,
+    S,
+    E,
+    W,
+    NW,
+    NE,
+    SE,
+    SW
+};
+
+
 struct map_view
 {
     map_t *map;
@@ -40,9 +53,10 @@ struct map_view
     game_object_t *game_object;
 };
 
-struct map_loc
+struct player_movement
 {
     int x, y;
+    enum direction8 dir;
 };
 
 /* player */
@@ -61,7 +75,9 @@ void   map_fill_region(map_t *map, int ul_x, int ul_y, int w, int h, int value);
 void   map_build_bsp(map_t *map, float rec_factor, float decay_factor);
 void   map_random_replace(map_t *map, int orig, int new, float prob);
 int    map_get_value(map_t *map, int x, int y);
+void   map_set_value(map_t *map, int x, int y, int value);
 float  map_get_ambiance(map_t *map, int x, int y);
+void   map_set_ambiance(map_t *map, int x, int y, float value);
 
 /* map_view */
 

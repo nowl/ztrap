@@ -1,11 +1,12 @@
 #include "ztrap.h"
 
 static void
-send_attempt_move_to_map_view(player_object_t *player)
+send_attempt_move_to_map_view(player_object_t *player, enum direction8 dir)
 {
-    map_loc_t *loc = malloc(sizeof(*loc));
+    player_movement_t *loc = malloc(sizeof(*loc));
     loc->x = player->nx;
     loc->y = player->ny;
+    loc->dir = dir;
     message_t *message = message_create(NULL, 
                                         player->mv->game_object,
                                         "player-attempt-move",
@@ -28,7 +29,7 @@ int player_message_handler(game_object_t *obj, message_t *mes)
                 player_object_t *data = obj->data;
                 data->nx = data->x;
                 data->ny = data->y - 1;
-                send_attempt_move_to_map_view(data);
+                send_attempt_move_to_map_view(data, N);
                 return 1;
             }
             case SDLK_KP2:
@@ -36,7 +37,7 @@ int player_message_handler(game_object_t *obj, message_t *mes)
                 player_object_t *data = obj->data;
                 data->nx = data->x;
                 data->ny = data->y + 1;
-                send_attempt_move_to_map_view(data);                
+                send_attempt_move_to_map_view(data, S);                
                 return 1;
             }
             case SDLK_KP4:
@@ -44,7 +45,7 @@ int player_message_handler(game_object_t *obj, message_t *mes)
                 player_object_t *data = obj->data;
                 data->nx = data->x - 1;
                 data->ny = data->y;
-                send_attempt_move_to_map_view(data);
+                send_attempt_move_to_map_view(data, W);
                 return 1;
             }
             case SDLK_KP6:
@@ -52,7 +53,7 @@ int player_message_handler(game_object_t *obj, message_t *mes)
                 player_object_t *data = obj->data;
                 data->nx = data->x + 1;
                 data->ny = data->y;
-                send_attempt_move_to_map_view(data);
+                send_attempt_move_to_map_view(data, E);
                 return 1;
             }
             case SDLK_KP7:
@@ -60,7 +61,7 @@ int player_message_handler(game_object_t *obj, message_t *mes)
                 player_object_t *data = obj->data;
                 data->nx = data->x - 1;
                 data->ny = data->y - 1;
-                send_attempt_move_to_map_view(data);
+                send_attempt_move_to_map_view(data, NW);
                 return 1;
             }
             case SDLK_KP9:
@@ -68,7 +69,7 @@ int player_message_handler(game_object_t *obj, message_t *mes)
                 player_object_t *data = obj->data;
                 data->nx = data->x + 1;
                 data->ny = data->y - 1;
-                send_attempt_move_to_map_view(data);
+                send_attempt_move_to_map_view(data, NE);
                 return 1;
             }
             case SDLK_KP1:
@@ -76,7 +77,7 @@ int player_message_handler(game_object_t *obj, message_t *mes)
                 player_object_t *data = obj->data;
                 data->nx = data->x - 1;
                 data->ny = data->y + 1;
-                send_attempt_move_to_map_view(data);
+                send_attempt_move_to_map_view(data, SW);
                 return 1;
             }
             case SDLK_KP3:
@@ -84,7 +85,7 @@ int player_message_handler(game_object_t *obj, message_t *mes)
                 player_object_t *data = obj->data;
                 data->nx = data->x + 1;
                 data->ny = data->y + 1;
-                send_attempt_move_to_map_view(data);
+                send_attempt_move_to_map_view(data, SE);
                 return 1;
             }
             default:

@@ -29,7 +29,7 @@ map_destroy(map_t *map)
     free(map);
 }
 
-static void
+void
 map_set_value(map_t *map, int x, int y, int value)
 {
     if(x >= 0 && x < map->width && y >= 0 && y < map->height)
@@ -43,6 +43,13 @@ map_get_value(map_t *map, int x, int y)
         return map->tiles[map->width * y + x];
 
     return -1;
+}
+
+void
+map_set_ambiance(map_t *map, int x, int y, float value)
+{
+    if(x >= 0 && x < map->width && y >= 0 && y < map->height)
+        map->ambiance[map->width * y + x] = value;
 }
 
 float

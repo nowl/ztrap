@@ -1,5 +1,26 @@
 #include "ztrap.h"
 
+static void
+send_move_clear()
+{
+    message_t *message =
+        message_create(NULL,
+                       game_object_get_by_name("player"),
+                       "move-clear",
+                       NULL,
+                       0);
+    message_deliver(message, SYNC);
+}
+
+static void
+map_move_block(map_t *map, int x, int y, int dx, int dy)
+{
+    float amb = map_get_ambiance(map, x, y);
+    map_set_ambiance(map, x+dx, y+dy, amb);
+    map_set_value(map, x+dx, y+dy, 1);
+    map_set_value(map, x, y, 0);
+}
+
 static int
 message_handler(game_object_t *obj, message_t *mes)
 {
@@ -55,18 +76,75 @@ message_handler(game_object_t *obj, message_t *mes)
     else if(mes->type == lapis_hash("player-attempt-move"))
     {
         map_view_t *mv = obj->data;
-        map_loc_t *loc = mes->data;
+        player_movement_t *loc = mes->data;
+
+        /* first check if there is no obstruction, otherwise check if
+         * there is a clear space behind the wall */
         if( map_get_value(mv->map, loc->x, loc->y) != 1 )
         {
-            /* send collision with wall back */
-
-            message_t *message =
-                message_create(NULL,
-                               game_object_get_by_name("player"),
-                               "move-clear",
-                               NULL,
-                               0);
-            message_deliver(message, SYNC);
+            send_move_clear();
+        }
+        else
+        {
+            switch(loc->dir)
+            {
+            case N:
+                if( map_get_value(mv->map, loc->x, loc->y - 1) != 1 )
+                {
+                    map_move_block(mv->map, loc->x, loc->y, 0, -1);
+                    send_move_clear();
+                }
+                break;
+            case S:
+                if( map_get_value(mv->map, loc->x, loc->y + 1) != 1 )
+                {
+                    map_move_block(mv->map, loc->x, loc->y, 0, 1);
+                    send_move_clear();
+                }
+                break;
+            case E:
+                if( map_get_value(mv->map, loc->x + 1, loc->y) != 1 )
+                {
+                    map_move_block(mv->map, loc->x, loc->y, 1, 0);
+                    send_move_clear();
+                }
+                break;
+            case W:
+                if( map_get_value(mv->map, loc->x - 1, loc->y) != 1 )
+                {
+                    map_move_block(mv->map, loc->x, loc->y, -1, 0);
+                    send_move_clear();
+                }
+                break;
+            case NW:
+                if( map_get_value(mv->map, loc->x - 1, loc->y - 1) != 1 )
+                {
+                    map_move_block(mv->map, loc->x, loc->y, -1, -1);
+                    send_move_clear();
+                }
+                break;
+            case NE:
+                if( map_get_value(mv->map, loc->x + 1, loc->y - 1) != 1 )
+                {
+                    map_move_block(mv->map, loc->x, loc->y, 1, -1);
+                    send_move_clear();
+                }
+                break;
+            case SW:
+                if( map_get_value(mv->map, loc->x - 1, loc->y + 1) != 1 )
+                {
+                    map_move_block(mv->map, loc->x, loc->y, -1, 1);
+                    send_move_clear();
+                }
+                break;
+            case SE:
+                if( map_get_value(mv->map, loc->x + 1, loc->y + 1) != 1 )
+                {
+                    map_move_block(mv->map, loc->x, loc->y, 1, 1);
+                    send_move_clear();
+                }
+                break;
+            }            
         }
     }
     
