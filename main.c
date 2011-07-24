@@ -1,10 +1,10 @@
 #include "ztrap.h"
 
-int global_message_handler(game_object_t *obj, message_t mes)
+int global_message_handler(game_object_t *obj, message_t *mes)
 {
-    if(mes.type == lapis_hash("sdl-event"))
+    if(mes->type == lapis_hash("sdl-event"))
     {
-        SDL_Event event = *(SDL_Event *)mes.data;
+        SDL_Event event = *(SDL_Event *)mes->data;
         if(event.type == SDL_KEYDOWN)
         {
             switch(event.key.keysym.sym)

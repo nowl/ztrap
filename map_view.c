@@ -1,11 +1,11 @@
 #include "ztrap.h"
 
 static int
-message_handler(game_object_t *obj, message_t mes)
+message_handler(game_object_t *obj, message_t *mes)
 {
-    if(mes.type == lapis_hash("map-move"))
+    if(mes->type == lapis_hash("map-move"))
     {
-        enum direction4 dir = *(enum direction4 *)mes.data;
+        enum direction4 dir = *(enum direction4 *)mes->data;
         switch(dir)
         {
         case LEFT:

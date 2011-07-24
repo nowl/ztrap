@@ -41,7 +41,7 @@ struct map_view
 
 /* player */
 
-int  player_message_handler(game_object_t *obj, message_t mes);
+int  player_message_handler(game_object_t *obj, message_t *mes);
 void player_render(engine_t *engine, game_object_t *obj, float interpolation);
 void player_update(engine_t *engine, game_object_t *obj, unsigned int ticks);
 
