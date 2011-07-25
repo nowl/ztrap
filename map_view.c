@@ -77,12 +77,14 @@ message_handler(game_object_t *obj, message_t *mes)
     {
         map_view_t *mv = obj->data;
         player_movement_t *loc = mes->data;
+        int set_new_player_pos = 0;
 
         /* first check if there is no obstruction, otherwise check if
          * there is a clear space behind the wall */
         if( map_get_value(mv->map, loc->x, loc->y) != 1 )
         {
             send_move_clear();
+            set_new_player_pos = 1;
         }
         else
         {
@@ -93,6 +95,7 @@ message_handler(game_object_t *obj, message_t *mes)
                 {
                     map_move_block(mv->map, loc->x, loc->y, 0, -1);
                     send_move_clear();
+                    set_new_player_pos = 1;
                 }
                 break;
             case S:
@@ -100,6 +103,7 @@ message_handler(game_object_t *obj, message_t *mes)
                 {
                     map_move_block(mv->map, loc->x, loc->y, 0, 1);
                     send_move_clear();
+                    set_new_player_pos = 1;
                 }
                 break;
             case E:
@@ -107,6 +111,7 @@ message_handler(game_object_t *obj, message_t *mes)
                 {
                     map_move_block(mv->map, loc->x, loc->y, 1, 0);
                     send_move_clear();
+                    set_new_player_pos = 1;
                 }
                 break;
             case W:
@@ -114,6 +119,7 @@ message_handler(game_object_t *obj, message_t *mes)
                 {
                     map_move_block(mv->map, loc->x, loc->y, -1, 0);
                     send_move_clear();
+                    set_new_player_pos = 1;
                 }
                 break;
             case NW:
@@ -121,6 +127,7 @@ message_handler(game_object_t *obj, message_t *mes)
                 {
                     map_move_block(mv->map, loc->x, loc->y, -1, -1);
                     send_move_clear();
+                    set_new_player_pos = 1;
                 }
                 break;
             case NE:
@@ -128,6 +135,7 @@ message_handler(game_object_t *obj, message_t *mes)
                 {
                     map_move_block(mv->map, loc->x, loc->y, 1, -1);
                     send_move_clear();
+                    set_new_player_pos = 1;
                 }
                 break;
             case SW:
@@ -135,6 +143,7 @@ message_handler(game_object_t *obj, message_t *mes)
                 {
                     map_move_block(mv->map, loc->x, loc->y, -1, 1);
                     send_move_clear();
+                    set_new_player_pos = 1;
                 }
                 break;
             case SE:
@@ -142,13 +151,33 @@ message_handler(game_object_t *obj, message_t *mes)
                 {
                     map_move_block(mv->map, loc->x, loc->y, 1, 1);
                     send_move_clear();
+                    set_new_player_pos = 1;
                 }
                 break;
             }            
         }
+
+        if(set_new_player_pos)
+        {
+            mv->player_x = loc->x;
+            mv->player_y = loc->y;
+        }
+    }
+    else if(mes->type == lapis_hash("player-lighting"))
+    {
+        map_view_t *mv = obj->data;
+        mes_light_amt_t *light = mes->data;
+        
+        mv->lighting = light->lighting;        
     }
     
     return 0;
+}
+
+static int
+dist(int x, int y, int nx, int ny)
+{
+    return (nx-x)*(nx-x) + (ny-y)*(ny-y);
 }
 
 static void
@@ -159,13 +188,22 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
     for(y=mv->ys; y<=mv->ye; y++)
         for(x=mv->xs; x<=mv->xe; x++)
             if(map_get_value(mv->map, x, y) == 1)
+            {
+                int d = dist(mv->player_x, mv->player_y, x, y);
+                float darken;
+                if(d > 200 * mv->lighting)
+                    darken = 0;
+                else 
+                    darken = 5.0 / d;
+                                
                 lsdl_draw_image(engine, 
                                 image_loader_get("wall"),
                                 mv->screen_pos_x + (x - mv->xs) * 32,
                                 mv->screen_pos_y + (y - mv->ys) * 32,
                                 32,
                                 32,
-                                map_get_ambiance(mv->map, x, y));
+                                darken * map_get_ambiance(mv->map, x, y));
+            }
 }
 
 static void

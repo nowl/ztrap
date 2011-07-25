@@ -9,6 +9,7 @@ typedef struct player_object player_object_t;
 typedef struct map map_t;
 typedef struct map_view map_view_t;
 typedef struct player_movement player_movement_t;
+typedef struct mes_light_amt mes_light_amt_t;
 
 struct player_object
 {
@@ -44,12 +45,18 @@ enum direction8
     SW
 };
 
+struct mes_light_amt
+{
+    float lighting;
+};
 
 struct map_view
 {
     map_t *map;
     int screen_pos_x, screen_pos_y;
     int xs, xe, ys, ye;
+    int player_x, player_y;
+    float lighting;
     game_object_t *game_object;
 };
 

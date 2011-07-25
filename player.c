@@ -114,18 +114,35 @@ void player_render(engine_t *engine, game_object_t *obj, float interpolation)
                     1.0);
 }
 
+static int set_light = 0;
+
 void player_update(engine_t *engine, game_object_t *obj, unsigned int ticks)
 {
+    player_object_t *data = obj->data;
+
+    if(!set_light)
+    {
+        set_light = 1;
+        
+        mes_light_amt_t *light = malloc(sizeof(*light));
+        light->lighting = 1.0;
+        message_t *message = message_create(NULL, 
+                                            data->mv->game_object,
+                                            "player-lighting",
+                                            light,
+                                            1);
+        message_deliver(message, SYNC);        
+    }
+
 
     /* move the map based on where the player is */
-
-    player_object_t *data = obj->data;
+    
     if( map_view_pos_to_screen_y(data->mv, data->y) > (768-150) )
     {
         enum direction4 *dir = malloc(sizeof(*dir));
         *dir = DOWN;
         message_t *message = message_create(NULL, 
-                                            NULL,
+                                            data->mv->game_object,
                                             "map-move",
                                             dir,
                                             1);
@@ -137,7 +154,7 @@ void player_update(engine_t *engine, game_object_t *obj, unsigned int ticks)
         enum direction4 *dir = malloc(sizeof(*dir));
         *dir = UP;
         message_t *message = message_create(NULL, 
-                                            NULL,
+                                            data->mv->game_object,
                                             "map-move",
                                             dir,
                                             1);
@@ -149,7 +166,7 @@ void player_update(engine_t *engine, game_object_t *obj, unsigned int ticks)
         enum direction4 *dir = malloc(sizeof(*dir));
         *dir = LEFT;
         message_t *message = message_create(NULL, 
-                                            NULL,
+                                            data->mv->game_object,
                                             "map-move",
                                             dir,
                                             1);
@@ -161,7 +178,7 @@ void player_update(engine_t *engine, game_object_t *obj, unsigned int ticks)
         enum direction4 *dir = malloc(sizeof(*dir));
         *dir = RIGHT;
         message_t *message = message_create(NULL, 
-                                            NULL,
+                                            data->mv->game_object,
                                             "map-move",
                                             dir,
                                             1);
