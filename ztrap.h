@@ -14,7 +14,8 @@ typedef struct mes_light_amt mes_light_amt_t;
 struct player_object
 {
     int x, y, nx, ny;
-    map_view_t *mv;
+    unsigned long set_light_timer;
+    unsigned long set_light_timer_max;
 };
 
 struct map
@@ -58,6 +59,7 @@ struct map_view
     int player_x, player_y;
     float lighting;
     game_object_t *game_object;
+    int screen_w, screen_h;
 };
 
 struct player_movement

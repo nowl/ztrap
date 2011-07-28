@@ -7,12 +7,7 @@ send_attempt_move_to_map_view(player_object_t *player, enum direction8 dir)
     loc->x = player->nx;
     loc->y = player->ny;
     loc->dir = dir;
-    message_t *message = message_create(NULL, 
-                                        player->mv->game_object,
-                                        "player-attempt-move",
-                                        loc,
-                                        1);
-    message_deliver(message, SYNC);
+    message_create_and_send("player", "map-view", "player-attempt-move", loc, 1, SYNC);
 }
 
 int player_message_handler(game_object_t *obj, message_t *mes)
@@ -106,9 +101,10 @@ int player_message_handler(game_object_t *obj, message_t *mes)
 void player_render(engine_t *engine, game_object_t *obj, float interpolation)
 {
     player_object_t *data = obj->data;
+    map_view_t *mv = game_object_get_by_name("map-view")->data;
     lsdl_draw_image(engine, image_loader_get("player"),
-                    map_view_pos_to_screen_x(data->mv, data->x),
-                    map_view_pos_to_screen_y(data->mv, data->y),
+                    map_view_pos_to_screen_x(mv, data->x),
+                    map_view_pos_to_screen_y(mv, data->y),
                     32,
                     32,
                     1.0);
@@ -119,69 +115,47 @@ static int set_light = 0;
 void player_update(engine_t *engine, game_object_t *obj, unsigned int ticks)
 {
     player_object_t *data = obj->data;
+    map_view_t *mv = game_object_get_by_name("map-view")->data;
 
     if(!set_light)
     {
         set_light = 1;
+
+        player_movement_t *loc = malloc(sizeof(*loc));
+        loc->x = data->x;
+        loc->y = data->y;
+        message_create_and_send("player", "map-view", "player-announce-position", loc, 1, SYNC);
         
         mes_light_amt_t *light = malloc(sizeof(*light));
-        light->lighting = 1.0;
-        message_t *message = message_create(NULL, 
-                                            data->mv->game_object,
-                                            "player-lighting",
-                                            light,
-                                            1);
-        message_deliver(message, SYNC);        
+        light->lighting = 0.5;
+        message_create_and_send("player", "map-view", "player-lighting", light, 1, SYNC);
     }
 
 
     /* move the map based on where the player is */
-    
-    if( map_view_pos_to_screen_y(data->mv, data->y) > (768-150) )
+
+    if( map_view_pos_to_screen_y(mv, data->y) > (mv->screen_h-150) )
     {
         enum direction4 *dir = malloc(sizeof(*dir));
         *dir = DOWN;
-        message_t *message = message_create(NULL, 
-                                            data->mv->game_object,
-                                            "map-move",
-                                            dir,
-                                            1);
-        message_deliver(message, SYNC);
-        
+        message_create_and_send("player", "map-view", "map-move", dir, 1, SYNC);        
     }
-    if( map_view_pos_to_screen_y(data->mv, data->y) < 150 )
+    if( map_view_pos_to_screen_y(mv, data->y) < 150 )
     {
         enum direction4 *dir = malloc(sizeof(*dir));
         *dir = UP;
-        message_t *message = message_create(NULL, 
-                                            data->mv->game_object,
-                                            "map-move",
-                                            dir,
-                                            1);
-        message_deliver(message, SYNC);
-        
+        message_create_and_send("player", "map-view", "map-move", dir, 1, SYNC);        
     }
-    if( map_view_pos_to_screen_x(data->mv, data->x) < 150 )
+    if( map_view_pos_to_screen_x(mv, data->x) < 150 )
     {
         enum direction4 *dir = malloc(sizeof(*dir));
         *dir = LEFT;
-        message_t *message = message_create(NULL, 
-                                            data->mv->game_object,
-                                            "map-move",
-                                            dir,
-                                            1);
-        message_deliver(message, SYNC);
-        
+        message_create_and_send("player", "map-view", "map-move", dir, 1, SYNC);
     }
-    if( map_view_pos_to_screen_x(data->mv, data->x) > (1024-150) )
+    if( map_view_pos_to_screen_x(mv, data->x) > (mv->screen_w-150) )
     {
         enum direction4 *dir = malloc(sizeof(*dir));
         *dir = RIGHT;
-        message_t *message = message_create(NULL, 
-                                            data->mv->game_object,
-                                            "map-move",
-                                            dir,
-                                            1);
-        message_deliver(message, SYNC);
-    }        
+        message_create_and_send("player", "map-view", "map-move", dir, 1, SYNC);
+    }
 }

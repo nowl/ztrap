@@ -16,6 +16,19 @@ int global_message_handler(game_object_t *obj, message_t *mes)
                 break;
             }
         }
+        else if(event.type == SDL_QUIT)
+        {
+            engine_quit(lapis_get_engine());
+            return 1;
+        }
+        else if(event.type == SDL_VIDEORESIZE)
+        {
+            player_movement_t *loc = malloc(sizeof(*loc));
+            loc->x = event.resize.w;
+            loc->y = event.resize.h;
+            lsdl_resize_internal(event.resize.w, event.resize.h);
+            message_create_and_send(NULL, NULL, "window-resize", loc, 1, ASYNC);            
+        }
     }
 
     return 0;
@@ -26,7 +39,7 @@ int main(int argc, char *argv[])
     lapis_init();
 
     engine_t *engine = lapis_get_engine();
-    set_ticks_per_second(15);
+    set_ticks_per_second(10);
 
     game_state_t *state = game_state_create(0);
 
@@ -35,9 +48,10 @@ int main(int argc, char *argv[])
     /* initialize video */
     
     lsdl_set_video_mode(engine->sdl_driver,
-                        1024, 768, 0);
+                        1024, 768, 0, 1);
 
     SDL_EnableKeyRepeat(500, 50);
+    SDL_WM_SetCaption( "Zombie Trap v. 0.1", NULL );
 
     /* load graphics */
     image_loader_load("player", "data.png", 0, 0, 64, 64);
@@ -78,8 +92,6 @@ int main(int argc, char *argv[])
     game_state_append_object(state, mv->game_object);
     game_state_append_object(state, player);
 
-    player_data.mv = mv;
-            
     lapis_mainloop();
 
     map_view_destroy(mv);

@@ -3,13 +3,12 @@
 static void
 send_move_clear()
 {
-    message_t *message =
-        message_create(NULL,
-                       game_object_get_by_name("player"),
-                       "move-clear",
-                       NULL,
-                       0);
-    message_deliver(message, SYNC);
+    message_create_and_send("map-view",
+                            "player",
+                            "move-clear",
+                            NULL,
+                            0,
+                            SYNC);
 }
 
 static void
@@ -72,6 +71,14 @@ message_handler(game_object_t *obj, message_t *mes)
         default:
                 break;
         }
+    }
+    else if(mes->type == lapis_hash("player-announce-position"))
+    {
+        map_view_t *mv = obj->data;
+        player_movement_t *loc = mes->data;
+
+        mv->player_x = loc->x;
+        mv->player_y = loc->y;        
     }
     else if(mes->type == lapis_hash("player-attempt-move"))
     {
@@ -170,6 +177,20 @@ message_handler(game_object_t *obj, message_t *mes)
         
         mv->lighting = light->lighting;        
     }
+    else if(mes->type == lapis_hash("window-resize"))
+    {
+        map_view_t *mv = obj->data;
+        player_movement_t *loc = mes->data;
+        
+        mv->screen_w = loc->x;
+        mv->screen_h = loc->y;
+
+        /* change map-view size */
+        int w = mv->screen_w / 32 - 1;
+        int h = mv->screen_h / 32 - 2;
+        mv->xe = mv->xs + w - 1;
+        mv->ye = mv->ys + h - 1;
+    }
     
     return 0;
 }
@@ -185,16 +206,15 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
 {
     map_view_t *mv = obj->data;
     int x, y;
+    float light_noise = (random_float()-0.5)*.5;
     for(y=mv->ys; y<=mv->ye; y++)
         for(x=mv->xs; x<=mv->xe; x++)
             if(map_get_value(mv->map, x, y) == 1)
             {
                 int d = dist(mv->player_x, mv->player_y, x, y);
                 float darken;
-                if(d > 200 * mv->lighting)
-                    darken = 0;
-                else 
-                    darken = 5.0 / d;
+                darken = 25 * (mv->lighting + light_noise) / d;
+                darken = darken > 1.0 ? 1.0 : darken;
                                 
                 lsdl_draw_image(engine, 
                                 image_loader_get("wall"),
@@ -223,6 +243,8 @@ map_view_create(int screen_pos_x, int screen_pos_y, int width, int height)
     r->ys = 0;
     r->ye = height-1;
     r->game_object = game_object_create("map-view", r);
+    r->screen_w = 1024;
+    r->screen_h = 768;
     game_object_set_recv_callback_c_func(r->game_object, message_handler);
     game_object_set_render_callback_c_func(r->game_object, render);
     game_object_set_update_callback_c_func(r->game_object, update);
@@ -230,6 +252,9 @@ map_view_create(int screen_pos_x, int screen_pos_y, int width, int height)
     game_state_append_bcast_recvr(lapis_get_engine()->state,
                                   r->game_object,
                                   "map-move");
+    game_state_append_bcast_recvr(lapis_get_engine()->state,
+                                  r->game_object,
+                                  "window-resize");
     
     return r;
 }
