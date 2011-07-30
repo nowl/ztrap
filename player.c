@@ -93,6 +93,8 @@ int player_message_handler(game_object_t *obj, message_t *mes)
         player_object_t *data = obj->data;
         data->x = data->nx;
         data->y = data->ny;
+
+        message_create_and_send(NULL, NULL, "player-move", NULL, 0, SYNC);
     }
 
     return 0;

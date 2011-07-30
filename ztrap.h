@@ -23,6 +23,7 @@ struct zombie_controller
 {
     aatree_node_t *zombies;
     game_object_t *game_object;
+    int next_zombie_timer;
 };
 
 struct player_object
