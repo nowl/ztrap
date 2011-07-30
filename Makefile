@@ -8,7 +8,9 @@ SRCS = \
 	main.c \
 	player.c \
 	map.c \
-	map_view.c
+	map_view.c \
+	zombie_controller.c \
+	zombie.c
 
 OBJS = $(SRCS:.c=.o)
 

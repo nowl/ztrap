@@ -248,7 +248,6 @@ map_view_create(int screen_pos_x, int screen_pos_y, int width, int height)
     game_object_set_recv_callback_c_func(r->game_object, message_handler);
     game_object_set_render_callback_c_func(r->game_object, render);
     game_object_set_update_callback_c_func(r->game_object, update);
-    game_object_set_recv_callback_c_func(r->game_object, message_handler);
     game_state_append_bcast_recvr(lapis_get_engine()->state,
                                   r->game_object,
                                   "map-move");

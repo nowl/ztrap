@@ -56,8 +56,9 @@ int main(int argc, char *argv[])
     /* load graphics */
     image_loader_load("player", "data.png", 0, 0, 64, 64);
     image_loader_load("wall", "data.png", 0, 64, 64, 64);
+    image_loader_load("zombie1", "data.png", 0, 128, 64, 64);
 
-    /* create object */
+    /* create objects */
 
     game_object_t * global_object = game_object_create("global", NULL);
     game_state_append_object(state, global_object);
@@ -76,6 +77,8 @@ int main(int argc, char *argv[])
     game_object_set_render_callback_c_func(player, player_render);
     game_object_set_update_callback_c_func(player, player_update);
 
+    zombie_controller_t *zc = zombie_controller_create();
+
     /* build map */
 
     map_t *map = map_create(1024, 1024);
@@ -91,6 +94,7 @@ int main(int argc, char *argv[])
     
     game_state_append_object(state, mv->game_object);
     game_state_append_object(state, player);
+    game_state_append_object(state, zc->game_object);
 
     lapis_mainloop();
 

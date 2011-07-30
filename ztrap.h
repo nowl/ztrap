@@ -10,6 +10,20 @@ typedef struct map map_t;
 typedef struct map_view map_view_t;
 typedef struct player_movement player_movement_t;
 typedef struct mes_light_amt mes_light_amt_t;
+typedef struct zombie zombie_t;
+typedef struct zombie_controller zombie_controller_t;
+
+struct zombie
+{
+    int x, y;
+    game_object_t *game_object;
+};
+
+struct zombie_controller
+{
+    aatree_node_t *zombies;
+    game_object_t *game_object;
+};
 
 struct player_object
 {
@@ -94,5 +108,16 @@ map_view_t *map_view_create(int screen_pos_x, int screen_pos_y, int width, int h
 void        map_view_destroy(map_view_t *mv);
 int         map_view_pos_to_screen_x(map_view_t *mv, int x);
 int         map_view_pos_to_screen_y(map_view_t *mv, int y);
+
+/* zombie_controller */
+
+zombie_controller_t *zombie_controller_create();
+void                 zombie_controller_destroy(zombie_controller_t *zc);
+
+/* zombie */
+
+zombie_t *zombie_create(char *name);
+void      zombie_destroy(zombie_t *z);
+
 
 #endif  /* __ZTRAP_H__ */
