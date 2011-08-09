@@ -16,6 +16,7 @@ typedef struct zombie_controller zombie_controller_t;
 struct zombie
 {
     int x, y;
+    int next_path_timer, next_path_timer_max;
     game_object_t *game_object;
 };
 

@@ -9,6 +9,11 @@ new_zombie(zombie_controller_t *zc)
     x *= random_int_min_max(0, 1) == 0 ? 1 : -1;
     y *= random_int_min_max(0, 1) == 0 ? 1 : -1;
 
+    if(x < 0) x = 0;
+    if(y < 0) y = 0;
+
+    /* TODO: clip to max width and height */
+
     char *zombie_name;
     asprintf(&zombie_name, "zombie-%d", zc->zombie_counter++);
 

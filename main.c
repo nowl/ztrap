@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     lapis_init();
 
     engine_t *engine = lapis_get_engine();
-    set_ticks_per_second(10);
+    set_ticks_per_second(30);
 
     game_state_t *state = game_state_create(0);
 
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
     map_random_replace(map, 1, 0, 0.1);
     //debug_map_display(map);
     debug_map_display_file(map);
-    
+       
     map_view_t *mv = map_view_create(16, 16, 31, 22);
     mv->map = map;
 

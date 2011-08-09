@@ -1,8 +1,21 @@
 #include "ztrap.h"
 
+map_t * MAP = NULL;
+
+static int
+map_cost(unsigned int x, unsigned int y)
+{
+    if( map_get_value(MAP, x, y) == 1 )
+        return -1;
+    else
+        return 1;
+}
+
 map_t *
 map_create(int w, int h)
 {
+    astar_init(w, h, map_cost);
+
     map_t *r = malloc(sizeof(*r));
     r->tiles = malloc(sizeof(*r->tiles) * w * h);
     r->ambiance = malloc(sizeof(*r->ambiance) * w * h);
@@ -17,6 +30,8 @@ map_create(int w, int h)
         if(a > 0.9) a = 0.9;
         r->ambiance[i] = a;
     }
+
+    MAP = r;
 
     return r;
 }
