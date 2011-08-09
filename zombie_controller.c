@@ -9,7 +9,18 @@ new_zombie(zombie_controller_t *zc)
     x *= random_int_min_max(0, 1) == 0 ? 1 : -1;
     y *= random_int_min_max(0, 1) == 0 ? 1 : -1;
 
-    LOG("TODO: new zombie at %d, %d\n", x, y);
+    char *zombie_name;
+    asprintf(&zombie_name, "zombie-%d", zc->zombie_counter++);
+
+    zombie_t *zom = zombie_create(zombie_name);
+    zom->x = x;
+    zom->y = y;
+
+    LOG("new zombie \"%s\" at %d, %d\n", zombie_name, x, y);
+
+    game_state_append_object(lapis_get_engine()->state, zom->game_object);
+
+    free(zombie_name);
 }
 
 static int
@@ -42,7 +53,7 @@ zombie_controller_t *
 zombie_controller_create()
 {
     zombie_controller_t *zc = malloc(sizeof(*zc));
-    zc->zombies = NULL;
+    zc->zombie_counter = 0;
     zc->next_zombie_timer = random_int_min_max(5, 10);
     zc->game_object = game_object_create("zombie-controller", zc);
     game_object_set_recv_callback_c_func(zc->game_object, message_handler);
@@ -58,16 +69,5 @@ zombie_controller_create()
 void
 zombie_controller_destroy(zombie_controller_t *zc)
 {
-    if(zc->zombies)
-    {
-        aatree_node_t *n = aatree_first(zc->zombies);
-        while(n)
-        {
-            free(n->data);
-            zc->zombies = aatree_delete(zc->zombies, n);
-            n = aatree_first(zc->zombies);
-        }
-    }
-
     free(zc);
 }

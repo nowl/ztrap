@@ -21,7 +21,7 @@ struct zombie
 
 struct zombie_controller
 {
-    aatree_node_t *zombies;
+    unsigned int zombie_counter;
     game_object_t *game_object;
     int next_zombie_timer;
 };
