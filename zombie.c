@@ -20,6 +20,14 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
 }
 
 static void
+zombie_remove_and_destroy(zombie_t *zombie)
+{
+    game_object_remove(zombie->game_object);
+    game_object_destroy(lapis_get_engine(), zombie->game_object);
+    zombie_destroy(zombie);
+}
+
+static void
 update(engine_t *engine, game_object_t *obj, unsigned int ticks)
 {
     zombie_t *data = obj->data;
@@ -37,9 +45,10 @@ update(engine_t *engine, game_object_t *obj, unsigned int ticks)
         astar_pos_vector_t path = astar_retrieve_path();
         int path_len = astar_retrieve_path_length();
 
-        if(path_len > 25)
+        if(path_len > 100)
         {
-            LOG("TODO: kill zombie\n");
+            zombie_remove_and_destroy(data);
+            return;
         }
 
         if(path_len > 0)
