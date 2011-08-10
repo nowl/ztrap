@@ -216,13 +216,15 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
                 darken = 25 * (mv->lighting + light_noise) / d;
                 darken = darken > 1.0 ? 1.0 : darken;
                                 
+                float brightness = darken * map_get_ambiance(mv->map, x, y);
+
                 lsdl_draw_image(engine, 
                                 image_loader_get("wall"),
                                 mv->screen_pos_x + (x - mv->xs) * 32,
                                 mv->screen_pos_y + (y - mv->ys) * 32,
                                 32,
                                 32,
-                                darken * map_get_ambiance(mv->map, x, y));
+                                brightness, 0.5*brightness, 0.0);
             }
 }
 

@@ -16,7 +16,7 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
                     map_view_pos_to_screen_y(mv, data->y),
                     32,
                     32,
-                    1.0);
+                    1.0, 0, 0);
 }
 
 static void
