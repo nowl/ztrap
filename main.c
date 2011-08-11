@@ -57,6 +57,7 @@ int main(int argc, char *argv[])
     image_loader_load("player", "data.png", 0, 0, 64, 64);
     image_loader_load("wall", "data.png", 0, 64, 64, 64);
     image_loader_load("zombie1", "data.png", 0, 128, 64, 64);
+    image_loader_load("bullet1", "data.png", 0, 192, 64, 64);
 
     /* create objects */
 

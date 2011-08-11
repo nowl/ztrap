@@ -12,6 +12,15 @@ typedef struct player_movement player_movement_t;
 typedef struct mes_light_amt mes_light_amt_t;
 typedef struct zombie zombie_t;
 typedef struct zombie_controller zombie_controller_t;
+typedef struct bullet bullet_t;
+
+struct bullet
+{
+    int x, y;
+    int dx, dy;
+    int next_move_timer, next_move_timer_max;
+    game_object_t *game_object;
+};
 
 struct zombie
 {
@@ -120,6 +129,11 @@ void                 zombie_controller_destroy(zombie_controller_t *zc);
 
 zombie_t *zombie_create(char *name);
 void      zombie_destroy(zombie_t *z);
+
+/* bullet */
+
+bullet_t *bullet_create(char *name);
+void      bullet_destroy(bullet_t *z);
 
 
 #endif  /* __ZTRAP_H__ */

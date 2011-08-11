@@ -64,7 +64,7 @@ zombie_create(char *name)
 {
     zombie_t *z = malloc(sizeof(*z));
     z->game_object = game_object_create(name, z);
-    z->next_path_timer_max = 10;
+    z->next_path_timer_max = 30;
     z->next_path_timer = z->next_path_timer_max;
     game_object_set_recv_callback_c_func(z->game_object, message_handler);
     game_object_set_render_callback_c_func(z->game_object, render);
