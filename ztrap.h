@@ -93,6 +93,13 @@ struct player_movement
     enum direction8 dir;
 };
 
+enum render_level
+{
+    RL_MAP = 0,
+    RL_ZOMBIES,
+    RL_PLAYER
+};
+
 /* player */
 
 int  player_message_handler(game_object_t *obj, message_t *mes);

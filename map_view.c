@@ -226,6 +226,23 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
                                 32,
                                 brightness, 0.5*brightness, 0.0);
             }
+            else
+            {
+                int d = dist(mv->player_x, mv->player_y, x, y);
+                float darken;
+                darken = 25 * (mv->lighting + light_noise) / d;
+                darken = darken > 1.0 ? 1.0 : darken;
+                                
+                float brightness = darken * map_get_ambiance(mv->map, x, y);
+
+                lsdl_draw_image(engine, 
+                                image_loader_get("bullet1"),
+                                mv->screen_pos_x + (x - mv->xs) * 32,
+                                mv->screen_pos_y + (y - mv->ys) * 32,
+                                32,
+                                32,
+                                brightness, brightness, brightness);
+            }
 }
 
 static void
@@ -245,6 +262,7 @@ map_view_create(int screen_pos_x, int screen_pos_y, int width, int height)
     r->ys = 0;
     r->ye = height-1;
     r->game_object = game_object_create("map-view", r);
+    r->game_object->render_level = RL_MAP;
     r->screen_w = 1024;
     r->screen_h = 768;
     game_object_set_recv_callback_c_func(r->game_object, message_handler);

@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
     set_ticks_per_second(30);
 
     game_state_t *state = game_state_create(0);
+    state->num_render_levels = 3;
 
     engine_switch_state(engine, state);
 
@@ -77,6 +78,7 @@ int main(int argc, char *argv[])
     game_state_append_bcast_recvr(state, player, "sdl-event");
     game_object_set_render_callback_c_func(player, player_render);
     game_object_set_update_callback_c_func(player, player_update);
+    player->render_level = RL_PLAYER;
 
     zombie_controller_t *zc = zombie_controller_create();
 
@@ -92,10 +94,10 @@ int main(int argc, char *argv[])
     map_view_t *mv = map_view_create(16, 16, 31, 22);
     mv->map = map;
 
-    
     game_state_append_object(state, mv->game_object);
-    game_state_append_object(state, player);
     game_state_append_object(state, zc->game_object);
+    game_state_append_object(state, player);
+    
 
     lapis_mainloop();
 

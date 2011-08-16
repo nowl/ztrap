@@ -55,6 +55,7 @@ bullet_create(char *name)
 {
     bullet_t *b = malloc(sizeof(*b));
     b->game_object = game_object_create(name, b);
+    b->game_object->render_level = RL_PLAYER;
     b->next_move_timer_max = 5;
     b->next_move_timer = b->next_move_timer_max;
     game_object_set_recv_callback_c_func(b->game_object, message_handler);
