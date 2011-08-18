@@ -83,7 +83,8 @@ struct map_view
     int screen_pos_x, screen_pos_y;
     int xs, xe, ys, ye;
     int player_x, player_y;
-    float lighting;
+    float lighting, light_noise;
+    int light_noise_timer, light_noise_timer_max;
     game_object_t *game_object;
     int screen_w, screen_h;
 };

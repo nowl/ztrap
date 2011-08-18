@@ -206,14 +206,13 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
 {
     map_view_t *mv = obj->data;
     int x, y;
-    float light_noise = (random_float()-0.5)*.5;
     for(y=mv->ys; y<=mv->ye; y++)
         for(x=mv->xs; x<=mv->xe; x++)
             if(map_get_value(mv->map, x, y) == 1)
             {
                 int d = dist(mv->player_x, mv->player_y, x, y);
                 float darken;
-                darken = 25 * (mv->lighting + light_noise) / d;
+                darken = 25 * (mv->lighting + mv->light_noise) / d;
                 darken = darken > 1.0 ? 1.0 : darken;
                                 
                 float brightness = darken * map_get_ambiance(mv->map, x, y);
@@ -230,7 +229,7 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
             {
                 int d = dist(mv->player_x, mv->player_y, x, y);
                 float darken;
-                darken = 25 * (mv->lighting + light_noise) / d;
+                darken = 25 * (mv->lighting + mv->light_noise) / d;
                 darken = darken > 1.0 ? 1.0 : darken;
                                 
                 float brightness = darken * map_get_ambiance(mv->map, x, y);
@@ -248,6 +247,14 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
 static void
 update(engine_t *engine, game_object_t *obj, unsigned int ticks)
 {
+    map_view_t *mv = obj->data;
+
+    if(--mv->light_noise_timer == 0)
+    {        
+        mv->light_noise_timer = mv->light_noise_timer_max;
+        
+        mv->light_noise = (random_float()-0.5)*.5;
+    }
 }
 
 map_view_t *
@@ -255,6 +262,8 @@ map_view_create(int screen_pos_x, int screen_pos_y, int width, int height)
 {
     map_view_t *r = malloc(sizeof(*r));
     r->map = NULL;
+    r->light_noise = 0;
+    r->light_noise_timer = r->light_noise_timer_max = 10;
     r->screen_pos_x = screen_pos_x;
     r->screen_pos_y = screen_pos_y;
     r->xs = 0;

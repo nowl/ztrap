@@ -39,8 +39,8 @@ update(engine_t *engine, game_object_t *obj, unsigned int ticks)
         player_object_t *player = game_object_get_by_name("player")->data;
         struct astar_pos_t b = {data->x, data->y};
         struct astar_pos_t e = {player->x, player->y};
-        
-        astar_best_path(b, e);
+
+        astar_best_path(b, e, 250);
 
         astar_pos_vector_t path = astar_retrieve_path();
         int path_len = astar_retrieve_path_length();
