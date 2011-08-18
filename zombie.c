@@ -45,7 +45,7 @@ update(engine_t *engine, game_object_t *obj, unsigned int ticks)
         astar_pos_vector_t path = astar_retrieve_path();
         int path_len = astar_retrieve_path_length();
 
-        if(path_len > 100)
+        if(!path || path_len > 100)
         {
             zombie_remove_and_destroy(data);
             return;

@@ -55,10 +55,10 @@ int main(int argc, char *argv[])
     SDL_WM_SetCaption( "Zombie Trap v. 0.1", NULL );
 
     /* load graphics */
-    image_loader_load("player", "data.png", 0, 0, 64, 64);
-    image_loader_load("wall", "data.png", 0, 64, 64, 64);
-    image_loader_load("zombie1", "data.png", 0, 128, 64, 64);
-    image_loader_load("bullet1", "data.png", 0, 192, 64, 64);
+    image_loader_load("player", CS_AT);
+    image_loader_load("wall", CS_HASH);
+    image_loader_load("zombie1", CS_1);
+    image_loader_load("bullet1", CS_DOT);
 
     /* create objects */
 

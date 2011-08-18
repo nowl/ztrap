@@ -2,6 +2,7 @@
 #define __ZTRAP_H__
 
 #include "lapis.h"
+#include "charset.h"
 
 /* data structures */
 
