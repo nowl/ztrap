@@ -14,6 +14,13 @@ typedef struct mes_light_amt mes_light_amt_t;
 typedef struct zombie zombie_t;
 typedef struct zombie_controller zombie_controller_t;
 typedef struct bullet bullet_t;
+typedef struct hud hud_t;
+
+struct hud
+{
+    int rounds;
+    game_object_t *game_object;
+};
 
 struct bullet
 {
@@ -99,7 +106,10 @@ enum render_level
 {
     RL_MAP = 0,
     RL_ZOMBIES,
-    RL_PLAYER
+    RL_PLAYER,
+    RL_HUD,
+    
+    RL_NUM_LEVELS
 };
 
 /* player */
@@ -143,6 +153,11 @@ void      zombie_destroy(zombie_t *z);
 
 bullet_t *bullet_create(char *name);
 void      bullet_destroy(bullet_t *z);
+
+/* hud */
+
+hud_t *hud_create();
+void   hud_destroy(hud_t *h);
 
 
 #endif  /* __ZTRAP_H__ */

@@ -4,6 +4,8 @@ static void
 new_zombie(zombie_controller_t *zc)
 {
     player_object_t *player = game_object_get_by_name("player")->data;
+    map_view_t *mv = game_object_get_by_name("map-view")->data;
+    map_t *map = mv->map;
     int x = player->x + random_int_min_max(10, 20);
     int y = player->y + random_int_min_max(10, 20);
     x *= random_int_min_max(0, 1) == 0 ? 1 : -1;
@@ -11,8 +13,15 @@ new_zombie(zombie_controller_t *zc)
 
     if(x < 0) x = 0;
     if(y < 0) y = 0;
+    
+    if(x >= map->width) x = map->width - 1;
+    if(y >= map->height) y = map->height - 1;
 
-    /* TODO: clip to max width and height */
+    if(map_get_value(map, x, y) == 1)
+    {
+        /* obstruction */
+        return;
+    }
 
     char *zombie_name;
     asprintf(&zombie_name, "zombie-%d", zc->zombie_counter++);

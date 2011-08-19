@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     set_ticks_per_second(30);
 
     game_state_t *state = game_state_create(0);
-    state->num_render_levels = 3;
+    state->num_render_levels = RL_NUM_LEVELS;
 
     engine_switch_state(engine, state);
 
@@ -58,6 +58,10 @@ int main(int argc, char *argv[])
     image_loader_load("player", CS_AT);
     image_loader_load("wall", CS_HASH);
     image_loader_load("zombie1", CS_1);
+    image_loader_load("zombie2", CS_2);
+    image_loader_load("zombie3", CS_3);
+    image_loader_load("zombie4", CS_4);
+    image_loader_load("zombie5", CS_5);
     image_loader_load("bullet1", CS_DOT);
 
     /* create objects */
@@ -94,9 +98,13 @@ int main(int argc, char *argv[])
     map_view_t *mv = map_view_create(16, 16, 31, 22);
     mv->map = map;
 
+    /* build hud */
+    hud_t *hud = hud_create();
+
     game_state_append_object(state, mv->game_object);
     game_state_append_object(state, zc->game_object);
     game_state_append_object(state, player);
+    game_state_append_object(state, hud->game_object);
     
 
     lapis_mainloop();

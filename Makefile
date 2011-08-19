@@ -11,7 +11,8 @@ SRCS = \
 	map_view.c \
 	zombie_controller.c \
 	zombie.c \
-	bullet.c
+	bullet.c \
+	hud.c
 
 OBJS = $(SRCS:.c=.o)
 
