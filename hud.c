@@ -12,9 +12,18 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
 {
     hud_t *data = obj->data;
     map_view_t *mv = game_object_get_by_name("map-view")->data;
+    player_object_t *player = game_object_get_by_name("player")->data;
+
+    char *rounds_text;
+    asprintf(&rounds_text, "%d", player->rounds);
 
     lsdl_draw_text(engine, "VeraMono.ttf", 16,
-                   "testing", 255, 255, 255, 10, mv->screen_h-64+10);
+                   "Rounds", 255, 255, 255, 10, mv->screen_h-64+10);
+
+    lsdl_draw_text(engine, "VeraMono.ttf", 16,
+                   rounds_text, 0, 255, 0, 80, mv->screen_h-64+10);
+
+    free(rounds_text);
 }
 
 static void

@@ -91,6 +91,9 @@ attempt_move_player(int key, game_object_t *obj)
 static void
 fire_bullet(player_object_t *po, int dx, int dy)
 {
+    if(po->rounds == 0)
+        return;
+
     char *bullet_name;
     asprintf(&bullet_name, "bullet-%d", bullet_counter++);
     bullet_t *b = bullet_create(bullet_name);
@@ -100,6 +103,7 @@ fire_bullet(player_object_t *po, int dx, int dy)
     b->dy = dy;
     game_state_append_object(lapis_get_engine()->state, b->game_object);
     free(bullet_name);
+    po->rounds--;
 }
 
 static int

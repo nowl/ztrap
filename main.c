@@ -76,6 +76,7 @@ int main(int argc, char *argv[])
     player_object_t player_data;
     player_data.x = 1;
     player_data.y = 1;
+    player_data.rounds = 10;
 
     game_object_t * player = game_object_create("player", &player_data);
     game_object_set_recv_callback_c_func(player, player_message_handler);

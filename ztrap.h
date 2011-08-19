@@ -47,6 +47,7 @@ struct zombie_controller
 struct player_object
 {
     int x, y, nx, ny;
+    int rounds;
     unsigned long set_light_timer;
     unsigned long set_light_timer_max;
 };
