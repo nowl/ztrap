@@ -14,16 +14,28 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
     map_view_t *mv = game_object_get_by_name("map-view")->data;
     player_object_t *player = game_object_get_by_name("player")->data;
 
-    char *rounds_text;
-    asprintf(&rounds_text, "%d", player->rounds);
-
+    char *text;
+    asprintf(&text, "%d", player->rounds);
     lsdl_draw_text(engine, "VeraMono.ttf", 16,
-                   "Rounds", 255, 255, 255, 10, mv->screen_h-64+10);
-
+                   "Rounds", 255, 255, 255, 10, mv->screen_h-64+15);
     lsdl_draw_text(engine, "VeraMono.ttf", 16,
-                   rounds_text, 0, 255, 0, 80, mv->screen_h-64+10);
+                   text, 0, 255, 0, 90, mv->screen_h-64+15);
+    free(text);
 
-    free(rounds_text);
+    asprintf(&text, "%d", player->light);
+    lsdl_draw_text(engine, "VeraMono.ttf", 16,
+                   "Light", 255, 255, 255, 150, mv->screen_h-64+15);
+    lsdl_draw_text(engine, "VeraMono.ttf", 16,
+                   text, 0, 255, 0, 210, mv->screen_h-64+15);
+    free(text);
+
+    zombie_controller_t *zc = game_object_get_by_name("zombie-controller")->data;
+    asprintf(&text, "%d", zc->active_zombie_counter);
+    lsdl_draw_text(engine, "VeraMono.ttf", 16,
+                   "Zombies", 255, 255, 255, 270, mv->screen_h-64+15);
+    lsdl_draw_text(engine, "VeraMono.ttf", 16,
+                   text, 0, 255, 0, 360, mv->screen_h-64+15);
+    free(text);
 }
 
 static void
@@ -66,7 +78,6 @@ hud_create()
     hud_t *h = malloc(sizeof(*h));
     h->game_object = game_object_create("hud", h);
     h->game_object->render_level = RL_HUD;
-    h->rounds = 10;
     game_object_set_recv_callback_c_func(h->game_object, message_handler);
     game_object_set_render_callback_c_func(h->game_object, render);
     game_object_set_update_callback_c_func(h->game_object, update);

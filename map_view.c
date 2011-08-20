@@ -72,14 +72,6 @@ message_handler(game_object_t *obj, message_t *mes)
                 break;
         }
     }
-    else if(mes->type == lapis_hash("player-announce-position"))
-    {
-        map_view_t *mv = obj->data;
-        player_movement_t *loc = mes->data;
-
-        mv->player_x = loc->x;
-        mv->player_y = loc->y;        
-    }
     else if(mes->type == lapis_hash("player-attempt-move"))
     {
         map_view_t *mv = obj->data;
@@ -88,12 +80,32 @@ message_handler(game_object_t *obj, message_t *mes)
 
         /* first check if there is no obstruction, otherwise check if
          * there is a clear space behind the wall */
-        if( map_get_value(mv->map, loc->x, loc->y) != 1 )
+        if( map_get_value(mv->map, loc->x, loc->y) == 0 )
         {
             send_move_clear();
             set_new_player_pos = 1;
         }
-        else
+        else if( map_get_value(mv->map, loc->x, loc->y) == 'r' )
+        {
+            player_object_t *player = game_object_get_by_name("player")->data;
+
+            send_move_clear();
+            set_new_player_pos = 1;
+            
+            player->rounds += 5;
+            map_set_value(mv->map, loc->x, loc->y, 0);
+        }
+        else if( map_get_value(mv->map, loc->x, loc->y) == 'L' )
+        {            
+            player_object_t *player = game_object_get_by_name("player")->data;
+
+            send_move_clear();
+            set_new_player_pos = 1;
+
+            player->light += 100;
+            map_set_value(mv->map, loc->x, loc->y, 0);
+        }
+        else if(map_get_value(mv->map, loc->x, loc->y) == 1 )
         {
             switch(loc->dir)
             {
@@ -170,13 +182,6 @@ message_handler(game_object_t *obj, message_t *mes)
             mv->player_y = loc->y;
         }
     }
-    else if(mes->type == lapis_hash("player-lighting"))
-    {
-        map_view_t *mv = obj->data;
-        mes_light_amt_t *light = mes->data;
-        
-        mv->lighting = light->lighting;        
-    }
     else if(mes->type == lapis_hash("window-resize"))
     {
         map_view_t *mv = obj->data;
@@ -208,15 +213,16 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
     int x, y;
     for(y=mv->ys; y<=mv->ye; y++)
         for(x=mv->xs; x<=mv->xe; x++)
-            if(map_get_value(mv->map, x, y) == 1)
+        {
+            int d = dist(mv->player_x, mv->player_y, x, y);
+            float darken;
+            darken = 25 * (mv->lighting + mv->light_noise) / d;
+            darken = darken > 1.0 ? 1.0 : darken;
+            
+            float brightness = darken * map_get_ambiance(mv->map, x, y);
+            switch(map_get_value(mv->map, x, y))
             {
-                int d = dist(mv->player_x, mv->player_y, x, y);
-                float darken;
-                darken = 25 * (mv->lighting + mv->light_noise) / d;
-                darken = darken > 1.0 ? 1.0 : darken;
-                                
-                float brightness = darken * map_get_ambiance(mv->map, x, y);
-
+            case 1:
                 lsdl_draw_image(engine, 
                                 image_loader_get("wall"),
                                 mv->screen_pos_x + (x - mv->xs) * 32,
@@ -224,16 +230,8 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
                                 32,
                                 32,
                                 brightness, 0.5*brightness, 0.0);
-            }
-            else
-            {
-                int d = dist(mv->player_x, mv->player_y, x, y);
-                float darken;
-                darken = 25 * (mv->lighting + mv->light_noise) / d;
-                darken = darken > 1.0 ? 1.0 : darken;
-                                
-                float brightness = darken * map_get_ambiance(mv->map, x, y);
-
+                break;
+            case 0:
                 lsdl_draw_image(engine, 
                                 image_loader_get("bullet1"),
                                 mv->screen_pos_x + (x - mv->xs) * 32,
@@ -241,19 +239,45 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
                                 32,
                                 32,
                                 brightness, brightness, brightness);
+                break;
+            case 'r':
+                lsdl_draw_image(engine, 
+                                image_loader_get("round"),
+                                mv->screen_pos_x + (x - mv->xs) * 32,
+                                mv->screen_pos_y + (y - mv->ys) * 32,
+                                32,
+                                32,
+                                0, brightness, brightness*0.5);
+                break;
+            case 'L':
+                lsdl_draw_image(engine, 
+                                image_loader_get("light"),
+                                mv->screen_pos_x + (x - mv->xs) * 32,
+                                mv->screen_pos_y + (y - mv->ys) * 32,
+                                32,
+                                32,
+                                brightness, brightness, 0);
+                break;
+            default:
+                break;
             }
+        }
 }
 
 static void
 update(engine_t *engine, game_object_t *obj, unsigned int ticks)
 {
     map_view_t *mv = obj->data;
+    player_object_t *player = game_object_get_by_name("player")->data;
 
     if(--mv->light_noise_timer == 0)
     {        
         mv->light_noise_timer = mv->light_noise_timer_max;
         
-        mv->light_noise = (random_float()-0.5)*.5;
+        mv->player_x = player->x;
+        mv->player_y = player->y;
+        mv->lighting = player->light/250.0;
+        mv->light_noise = (random_float()-0.5)*mv->lighting;
     }
 }
 
@@ -263,6 +287,7 @@ map_view_create(int screen_pos_x, int screen_pos_y, int width, int height)
     map_view_t *r = malloc(sizeof(*r));
     r->map = NULL;
     r->light_noise = 0;
+    r->lighting = 0;
     r->light_noise_timer = r->light_noise_timer_max = 10;
     r->screen_pos_x = screen_pos_x;
     r->screen_pos_y = screen_pos_y;

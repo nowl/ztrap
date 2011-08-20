@@ -18,7 +18,6 @@ typedef struct hud hud_t;
 
 struct hud
 {
-    int rounds;
     game_object_t *game_object;
 };
 
@@ -39,7 +38,7 @@ struct zombie
 
 struct zombie_controller
 {
-    unsigned int zombie_counter;
+    unsigned int total_zombie_counter, active_zombie_counter;
     game_object_t *game_object;
     int next_zombie_timer;
 };
@@ -48,8 +47,10 @@ struct player_object
 {
     int x, y, nx, ny;
     int rounds;
-    unsigned long set_light_timer;
-    unsigned long set_light_timer_max;
+    int light;
+    
+    unsigned long change_light_timer;
+    unsigned long change_light_timer_max;
 };
 
 struct map

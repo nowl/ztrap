@@ -24,7 +24,8 @@ new_zombie(zombie_controller_t *zc)
     }
 
     char *zombie_name;
-    asprintf(&zombie_name, "zombie-%d", zc->zombie_counter++);
+    asprintf(&zombie_name, "zombie-%d", zc->total_zombie_counter++);
+    zc->active_zombie_counter++;
 
     zombie_t *zom = zombie_create(zombie_name);
     zom->x = x;
@@ -39,17 +40,7 @@ new_zombie(zombie_controller_t *zc)
 
 static int
 message_handler(game_object_t *obj, message_t *mes)
-{
-    if(mes->type == lapis_hash("player-move"))
-    {
-        zombie_controller_t *zc = obj->data;
-        if(--zc->next_zombie_timer == 0)
-        {
-            zc->next_zombie_timer = random_int_min_max(5, 10);
-            new_zombie(zc);
-        }
-    }
-
+{    
     return 0;
 }                    
 
@@ -61,14 +52,20 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
 static void
 update(engine_t *engine, game_object_t *obj, unsigned int ticks)
 {
+    zombie_controller_t *zc = obj->data;
+    if(--zc->next_zombie_timer == 0)
+    {
+        zc->next_zombie_timer = random_int_min_max(30, 60);
+        new_zombie(zc);
+    }
 }
 
 zombie_controller_t *
 zombie_controller_create()
 {
     zombie_controller_t *zc = malloc(sizeof(*zc));
-    zc->zombie_counter = 0;
-    zc->next_zombie_timer = random_int_min_max(5, 10);
+    zc->total_zombie_counter = zc->active_zombie_counter = 0;
+    zc->next_zombie_timer = random_int_min_max(50, 100);
     zc->game_object = game_object_create("zombie-controller", zc);
     game_object_set_recv_callback_c_func(zc->game_object, message_handler);
     game_object_set_render_callback_c_func(zc->game_object, render);

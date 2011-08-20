@@ -198,27 +198,18 @@ void player_render(engine_t *engine, game_object_t *obj, float interpolation)
                     1.0, 1.0, 1.0);
 }
 
-static int set_light = 0;
-
 void player_update(engine_t *engine, game_object_t *obj, unsigned int ticks)
 {
     player_object_t *data = obj->data;
     map_view_t *mv = game_object_get_by_name("map-view")->data;
 
-    if(!set_light)
+    /* update lighting */
+    if(data->light != 0 && --data->change_light_timer == 0)
     {
-        set_light = 1;
-
-        player_movement_t *loc = malloc(sizeof(*loc));
-        loc->x = data->x;
-        loc->y = data->y;
-        message_create_and_send("player", "map-view", "player-announce-position", loc, 1, SYNC);
+        data->change_light_timer = data->change_light_timer_max;
         
-        mes_light_amt_t *light = malloc(sizeof(*light));
-        light->lighting = 0.5;
-        message_create_and_send("player", "map-view", "player-lighting", light, 1, SYNC);
+        data->light--;
     }
-
 
     /* move the map based on where the player is */
 

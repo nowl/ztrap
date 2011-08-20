@@ -63,6 +63,8 @@ int main(int argc, char *argv[])
     image_loader_load("zombie4", CS_4);
     image_loader_load("zombie5", CS_5);
     image_loader_load("bullet1", CS_DOT);
+    image_loader_load("round", CS_r);
+    image_loader_load("light", CS_L);
 
     /* create objects */
 
@@ -76,7 +78,9 @@ int main(int argc, char *argv[])
     player_object_t player_data;
     player_data.x = 1;
     player_data.y = 1;
-    player_data.rounds = 10;
+    player_data.rounds = 5;
+    player_data.light = 500;
+    player_data.change_light_timer = player_data.change_light_timer_max = 15;
 
     game_object_t * player = game_object_create("player", &player_data);
     game_object_set_recv_callback_c_func(player, player_message_handler);
@@ -93,6 +97,8 @@ int main(int argc, char *argv[])
     map_build_bsp(map, 0.75, 1.0);
     map_random_replace(map, 0, 1, 0.1);
     map_random_replace(map, 1, 0, 0.1);
+    map_random_replace(map, 0, 'r', 1.0/20/20);
+    map_random_replace(map, 0, 'L', 1.0/15/15);
     //debug_map_display(map);
     debug_map_display_file(map);
        

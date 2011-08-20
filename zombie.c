@@ -48,6 +48,8 @@ update(engine_t *engine, game_object_t *obj, unsigned int ticks)
         if(!path || path_len > 100)
         {
             zombie_remove_and_destroy(data);
+            zombie_controller_t *zc = game_object_get_by_name("zombie-controller")->data;
+            zc->active_zombie_counter--;
             return;
         }
 
