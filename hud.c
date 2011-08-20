@@ -10,7 +10,6 @@ message_handler(game_object_t *obj, message_t *mes)
 static void
 render(engine_t *engine, game_object_t *obj, float interpolation)
 {
-    hud_t *data = obj->data;
     map_view_t *mv = game_object_get_by_name("map-view")->data;
     player_object_t *player = game_object_get_by_name("player")->data;
 

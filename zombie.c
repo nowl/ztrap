@@ -3,6 +3,16 @@
 static int
 message_handler(game_object_t *obj, message_t *mes)
 {
+    zombie_t *z = obj->data;
+
+    if(mes->type == lapis_hash("bullet-move"))
+    {
+        player_movement_t *loc = mes->data;
+
+        if(loc->x == z->x && loc->y == z->y)
+            z->destroy = 1;     /* mark for destroy on next update */
+    }
+    
     return 0;
 }                    
 
@@ -25,12 +35,20 @@ zombie_remove_and_destroy(zombie_t *zombie)
     game_object_remove(zombie->game_object);
     game_object_destroy(lapis_get_engine(), zombie->game_object);
     zombie_destroy(zombie);
+    zombie_controller_t *zc = game_object_get_by_name("zombie-controller")->data;
+    zc->active_zombie_counter--;
 }
 
 static void
 update(engine_t *engine, game_object_t *obj, unsigned int ticks)
 {
     zombie_t *data = obj->data;
+
+    if(data->destroy)
+    {
+        zombie_remove_and_destroy(data);
+        return;
+    }
     
     if(--data->next_path_timer == 0)
     {
@@ -48,8 +66,6 @@ update(engine_t *engine, game_object_t *obj, unsigned int ticks)
         if(!path || path_len > 100)
         {
             zombie_remove_and_destroy(data);
-            zombie_controller_t *zc = game_object_get_by_name("zombie-controller")->data;
-            zc->active_zombie_counter--;
             return;
         }
 
@@ -69,15 +85,14 @@ zombie_create(char *name)
     z->game_object->render_level = RL_ZOMBIES;
     z->next_path_timer_max = 30;
     z->next_path_timer = z->next_path_timer_max;
+    z->destroy = 0;
     game_object_set_recv_callback_c_func(z->game_object, message_handler);
     game_object_set_render_callback_c_func(z->game_object, render);
     game_object_set_update_callback_c_func(z->game_object, update);
     
-    /*
     game_state_append_bcast_recvr(lapis_get_engine()->state,
                                   z->game_object,
-                                  "map-move");
-    */
+                                  "bullet-move");
     return z;
 }
 

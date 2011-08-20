@@ -46,7 +46,13 @@ update(engine_t *engine, game_object_t *obj, unsigned int ticks)
            screeny < 0 || screeny > mv->screen_h)
         {
             bullet_remove_and_destroy(data);
+            return;
         }
+
+        player_movement_t *loc = malloc(sizeof(*loc));
+        loc->x = data->x;
+        loc->y = data->y;
+        message_create_and_send(NULL, NULL, "bullet-move", loc, 1, SYNC);
     }
 }
 

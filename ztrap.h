@@ -34,6 +34,7 @@ struct zombie
     int x, y;
     int next_path_timer, next_path_timer_max;
     game_object_t *game_object;
+    int destroy;
 };
 
 struct zombie_controller
