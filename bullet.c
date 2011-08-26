@@ -31,6 +31,12 @@ static void
 update(engine_t *engine, game_object_t *obj, unsigned int ticks)
 {
     bullet_t *data = obj->data;
+
+    if(data->destroy)
+    {
+        bullet_remove_and_destroy(data);
+        return;
+    }
     
     if(--data->next_move_timer == 0)
     {
@@ -52,7 +58,10 @@ update(engine_t *engine, game_object_t *obj, unsigned int ticks)
         player_movement_t *loc = malloc(sizeof(*loc));
         loc->x = data->x;
         loc->y = data->y;
-        message_create_and_send(NULL, NULL, "bullet-move", loc, 1, SYNC);
+
+        message_t *mes = message_create(obj, NULL, "bullet-move", loc, 1);
+        message_deliver(mes, SYNC);
+        free(mes);
     }
 }
 
@@ -62,7 +71,8 @@ bullet_create(char *name)
     bullet_t *b = malloc(sizeof(*b));
     b->game_object = game_object_create(name, b);
     b->game_object->render_level = RL_PLAYER;
-    b->next_move_timer_max = 5;
+    b->destroy = 0;
+    b->next_move_timer_max = 2;
     b->next_move_timer = b->next_move_timer_max;
     game_object_set_recv_callback_c_func(b->game_object, message_handler);
     game_object_set_render_callback_c_func(b->game_object, render);

@@ -10,7 +10,14 @@ message_handler(game_object_t *obj, message_t *mes)
         player_movement_t *loc = mes->data;
 
         if(loc->x == z->x && loc->y == z->y)
-            z->destroy = 1;     /* mark for destroy on next update */
+        {
+            /* mark for destroy on next update */
+            z->destroy = 1;
+
+            /* also destroy the bullet */
+            bullet_t * bullet = mes->sender->data;
+            bullet->destroy = 1;
+        }
     }
     
     return 0;

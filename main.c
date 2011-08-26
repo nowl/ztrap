@@ -97,8 +97,8 @@ int main(int argc, char *argv[])
     map_build_bsp(map, 0.75, 1.0);
     map_random_replace(map, 0, 1, 0.1);
     map_random_replace(map, 1, 0, 0.1);
-    map_random_replace(map, 0, 'r', 1.0/20/20);
-    map_random_replace(map, 0, 'L', 1.0/15/15);
+    map_random_replace(map, 0, 'r', 1.0/50/50);
+    map_random_replace(map, 0, 'L', 1.0/30/30);
     //debug_map_display(map);
     debug_map_display_file(map);
        

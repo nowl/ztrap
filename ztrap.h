@@ -27,6 +27,7 @@ struct bullet
     int dx, dy;
     int next_move_timer, next_move_timer_max;
     game_object_t *game_object;
+    int destroy;
 };
 
 struct zombie

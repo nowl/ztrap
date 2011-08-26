@@ -196,6 +196,21 @@ message_handler(game_object_t *obj, message_t *mes)
         mv->xe = mv->xs + w - 1;
         mv->ye = mv->ys + h - 1;
     }
+    else if(mes->type == lapis_hash("bullet-move"))
+    {
+        map_view_t *mv = obj->data;
+        player_movement_t *loc = mes->data;
+        
+        if( map_get_value(mv->map, loc->x, loc->y) == 1 ) /* wall */
+        {
+            /* destroy the wall */
+            map_set_value(mv->map, loc->x, loc->y, 0);
+
+            /* also destroy the bullet */
+            bullet_t * bullet = mes->sender->data;
+            bullet->destroy = 1;
+        }
+    }
     
     return 0;
 }
@@ -308,7 +323,9 @@ map_view_create(int screen_pos_x, int screen_pos_y, int width, int height)
     game_state_append_bcast_recvr(lapis_get_engine()->state,
                                   r->game_object,
                                   "window-resize");
-    
+    game_state_append_bcast_recvr(lapis_get_engine()->state,
+                                  r->game_object,
+                                  "bullet-move");    
     return r;
 }
 
