@@ -9,7 +9,9 @@ send_attempt_move_to_map_view(player_object_t *player, enum direction8 dir)
     loc->x = player->nx;
     loc->y = player->ny;
     loc->dir = dir;
-    message_create_and_send("player", "map-view", "player-attempt-move", loc, 1, SYNC);
+    ref_t *ref = ref_create(loc);
+    message_create_and_send("player", "map-view", "player-attempt-move", ref, SYNC);
+    ref_dec(ref);
 }
 
 static int
@@ -162,16 +164,16 @@ int player_message_handler(game_object_t *obj, message_t *mes)
 {
     if(mes->type == lapis_hash("sdl-event"))
     {
-        SDL_Event event = *(SDL_Event *)mes->data;
-        if(event.type == SDL_KEYDOWN)
+        SDL_Event *event = mes->data->data;
+        if(event->type == SDL_KEYDOWN)
         {
-            int shift_down = event.key.keysym.mod & (KMOD_RSHIFT | KMOD_LSHIFT);
+            int shift_down = event->key.keysym.mod & (KMOD_RSHIFT | KMOD_LSHIFT);
 
             if(shift_down)
-                return attempt_fire(event.key.keysym.sym, obj);
+                return attempt_fire(event->key.keysym.sym, obj);
             
             if(!shift_down)
-                return attempt_move_player(event.key.keysym.sym, obj);
+                return attempt_move_player(event->key.keysym.sym, obj);
         }
     }
     else if(mes->type == lapis_hash("move-clear"))
@@ -180,7 +182,7 @@ int player_message_handler(game_object_t *obj, message_t *mes)
         data->x = data->nx;
         data->y = data->ny;
 
-        message_create_and_send(NULL, NULL, "player-move", NULL, 0, SYNC);
+        message_create_and_send(NULL, NULL, "player-move", NULL, SYNC);
     }
 
     return 0;
@@ -217,24 +219,32 @@ void player_update(engine_t *engine, game_object_t *obj, unsigned int ticks)
     {
         enum direction4 *dir = malloc(sizeof(*dir));
         *dir = DOWN;
-        message_create_and_send("player", "map-view", "map-move", dir, 1, SYNC);        
+        ref_t *ref = ref_create(dir);
+        message_create_and_send("player", "map-view", "map-move", ref, SYNC);
+        ref_dec(ref);
     }
     if( map_view_pos_to_screen_y(mv, data->y) < 150 )
     {
         enum direction4 *dir = malloc(sizeof(*dir));
         *dir = UP;
-        message_create_and_send("player", "map-view", "map-move", dir, 1, SYNC);        
+        ref_t *ref = ref_create(dir);
+        message_create_and_send("player", "map-view", "map-move", ref, SYNC);        
+        ref_dec(ref);
     }
     if( map_view_pos_to_screen_x(mv, data->x) < 150 )
     {
         enum direction4 *dir = malloc(sizeof(*dir));
         *dir = LEFT;
-        message_create_and_send("player", "map-view", "map-move", dir, 1, SYNC);
+        ref_t *ref = ref_create(dir);
+        message_create_and_send("player", "map-view", "map-move", ref, SYNC);
+        ref_dec(ref);
     }
     if( map_view_pos_to_screen_x(mv, data->x) > (mv->screen_w-150) )
     {
         enum direction4 *dir = malloc(sizeof(*dir));
         *dir = RIGHT;
-        message_create_and_send("player", "map-view", "map-move", dir, 1, SYNC);
+        ref_t *ref = ref_create(dir);
+        message_create_and_send("player", "map-view", "map-move", ref, SYNC);
+        ref_dec(ref);
     }
 }

@@ -1,8 +1,8 @@
 CC = gcc
 CFLAGS = -Wall -g
-INCLUDES = $(shell sdl-config --cflags) -I../lapis
+INCLUDES = $(shell sdl-config --cflags) -I../lapis -I/usr/local/include/SDL
 LDFLAGS = -Wl,-rpath,'.'
-LIBS = -lGL -lGLU $(shell sdl-config --libs) -lSDL_image -lSDL_mixer -lSDL_ttf -L. -llapis
+LIBS = -lGL -lGLU $(shell sdl-config --libs) -L/usr/local/lib -lSDL_image -lSDL_mixer -lSDL_ttf -L. -llapis
 
 SRCS = \
 	main.c \

@@ -7,7 +7,7 @@ message_handler(game_object_t *obj, message_t *mes)
 
     if(mes->type == lapis_hash("bullet-move"))
     {
-        player_movement_t *loc = mes->data;
+        player_movement_t *loc = mes->data->data;
 
         if(loc->x == z->x && loc->y == z->y)
         {

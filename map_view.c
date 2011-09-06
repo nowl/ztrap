@@ -7,7 +7,6 @@ send_move_clear()
                             "player",
                             "move-clear",
                             NULL,
-                            0,
                             SYNC);
 }
 
@@ -25,7 +24,7 @@ message_handler(game_object_t *obj, message_t *mes)
 {
     if(mes->type == lapis_hash("map-move"))
     {
-        enum direction4 dir = *(enum direction4 *)mes->data;
+        enum direction4 dir = *(enum direction4 *)mes->data->data;
         switch(dir)
         {
         case LEFT:
@@ -75,7 +74,7 @@ message_handler(game_object_t *obj, message_t *mes)
     else if(mes->type == lapis_hash("player-attempt-move"))
     {
         map_view_t *mv = obj->data;
-        player_movement_t *loc = mes->data;
+        player_movement_t *loc = mes->data->data;
         int set_new_player_pos = 0;
 
         /* first check if there is no obstruction, otherwise check if
@@ -185,7 +184,7 @@ message_handler(game_object_t *obj, message_t *mes)
     else if(mes->type == lapis_hash("window-resize"))
     {
         map_view_t *mv = obj->data;
-        player_movement_t *loc = mes->data;
+        player_movement_t *loc = mes->data->data;
         
         mv->screen_w = loc->x;
         mv->screen_h = loc->y;
@@ -199,7 +198,7 @@ message_handler(game_object_t *obj, message_t *mes)
     else if(mes->type == lapis_hash("bullet-move"))
     {
         map_view_t *mv = obj->data;
-        player_movement_t *loc = mes->data;
+        player_movement_t *loc = mes->data->data;
         
         if( map_get_value(mv->map, loc->x, loc->y) == 1 ) /* wall */
         {

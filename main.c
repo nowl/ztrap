@@ -4,10 +4,10 @@ int global_message_handler(game_object_t *obj, message_t *mes)
 {
     if(mes->type == lapis_hash("sdl-event"))
     {
-        SDL_Event event = *(SDL_Event *)mes->data;
-        if(event.type == SDL_KEYDOWN)
+        SDL_Event *event = mes->data->data;
+        if(event->type == SDL_KEYDOWN)
         {
-            switch(event.key.keysym.sym)
+            switch(event->key.keysym.sym)
             {
             case SDLK_ESCAPE:
                 engine_quit(lapis_get_engine());
@@ -16,18 +16,20 @@ int global_message_handler(game_object_t *obj, message_t *mes)
                 break;
             }
         }
-        else if(event.type == SDL_QUIT)
+        else if(event->type == SDL_QUIT)
         {
             engine_quit(lapis_get_engine());
             return 1;
         }
-        else if(event.type == SDL_VIDEORESIZE)
+        else if(event->type == SDL_VIDEORESIZE)
         {
             player_movement_t *loc = malloc(sizeof(*loc));
-            loc->x = event.resize.w;
-            loc->y = event.resize.h;
-            lsdl_resize_internal(event.resize.w, event.resize.h);
-            message_create_and_send(NULL, NULL, "window-resize", loc, 1, ASYNC);            
+            loc->x = event->resize.w;
+            loc->y = event->resize.h;
+            ref_t *ref = ref_create(loc);
+            lsdl_resize_internal(event->resize.w, event->resize.h);
+            message_create_and_send(NULL, NULL, "window-resize", ref, ASYNC);
+            ref_dec(ref);
         }
     }
 
@@ -93,7 +95,7 @@ int main(int argc, char *argv[])
 
     /* build map */
 
-    map_t *map = map_create(1024, 1024);
+    map_t *map = map_create(64, 64);
     map_build_bsp(map, 0.75, 1.0);
     map_random_replace(map, 0, 1, 0.1);
     map_random_replace(map, 1, 0, 0.1);

@@ -37,7 +37,7 @@ new_zombie(zombie_controller_t *zc)
     if(timer <= 1) timer = 1;
     zom->next_path_timer_max = timer;
 
-    LOG("new zombie \"%s\" at %d, %d\n", zombie_name, x, y);
+    //LOG("new zombie \"%s\" at %d, %d\n", zombie_name, x, y);
 
     game_state_append_object(lapis_get_engine()->state, zom->game_object);
 
