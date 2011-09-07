@@ -56,17 +56,11 @@ int main(int argc, char *argv[])
     SDL_EnableKeyRepeat(500, 50);
     SDL_WM_SetCaption( "Zombie Trap v. 0.1", NULL );
 
+    /* test */
     /* load graphics */
-    image_loader_load("player", CS_AT);
-    image_loader_load("wall", CS_HASH);
-    image_loader_load("zombie1", CS_1);
-    image_loader_load("zombie2", CS_2);
-    image_loader_load("zombie3", CS_3);
-    image_loader_load("zombie4", CS_4);
-    image_loader_load("zombie5", CS_5);
-    image_loader_load("bullet1", CS_DOT);
-    image_loader_load("round", CS_r);
-    image_loader_load("light", CS_L);
+    lapis_lua_t *lua = lua_scripting_init();
+    lua_scripting_run_file(lua, "main.lua");
+    /* end test */
 
     /* create objects */
 
