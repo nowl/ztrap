@@ -59,7 +59,8 @@ int main(int argc, char *argv[])
     /* test */
     /* load graphics */
     lapis_lua_t *lua = lua_scripting_init();
-    lua_scripting_run_file(lua, "main.lua");
+    if( lua_scripting_run_file(lua, "main.lua") != 0 )
+        return 0;
     /* end test */
 
     /* create objects */
@@ -95,6 +96,7 @@ int main(int argc, char *argv[])
     map_random_replace(map, 1, 0, 0.1);
     map_random_replace(map, 0, 'r', 1.0/50/50);
     map_random_replace(map, 0, 'L', 1.0/30/30);
+    map_place_once(map, 0, 'P');
     //debug_map_display(map);
     debug_map_display_file(map);
        

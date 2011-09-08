@@ -104,12 +104,21 @@ message_handler(game_object_t *obj, message_t *mes)
             player->light += 100;
             map_set_value(mv->map, loc->x, loc->y, 0);
         }
+        else if( map_get_value(mv->map, loc->x, loc->y) == 'P' )
+        {            
+            player_object_t *player = game_object_get_by_name("player")->data;
+
+            send_move_clear();
+            set_new_player_pos = 1;
+
+            LOG("moving to next level\n");
+        }
         else if(map_get_value(mv->map, loc->x, loc->y) == 1 )
         {
             switch(loc->dir)
             {
             case N:
-                if( map_get_value(mv->map, loc->x, loc->y - 1) != 1 )
+                if( map_get_value(mv->map, loc->x, loc->y - 1) == 0 )
                 {
                     map_move_block(mv->map, loc->x, loc->y, 0, -1);
                     send_move_clear();
@@ -117,7 +126,7 @@ message_handler(game_object_t *obj, message_t *mes)
                 }
                 break;
             case S:
-                if( map_get_value(mv->map, loc->x, loc->y + 1) != 1 )
+                if( map_get_value(mv->map, loc->x, loc->y + 1) == 0 )
                 {
                     map_move_block(mv->map, loc->x, loc->y, 0, 1);
                     send_move_clear();
@@ -125,7 +134,7 @@ message_handler(game_object_t *obj, message_t *mes)
                 }
                 break;
             case E:
-                if( map_get_value(mv->map, loc->x + 1, loc->y) != 1 )
+                if( map_get_value(mv->map, loc->x + 1, loc->y) == 0 )
                 {
                     map_move_block(mv->map, loc->x, loc->y, 1, 0);
                     send_move_clear();
@@ -133,7 +142,7 @@ message_handler(game_object_t *obj, message_t *mes)
                 }
                 break;
             case W:
-                if( map_get_value(mv->map, loc->x - 1, loc->y) != 1 )
+                if( map_get_value(mv->map, loc->x - 1, loc->y) == 0 )
                 {
                     map_move_block(mv->map, loc->x, loc->y, -1, 0);
                     send_move_clear();
@@ -141,7 +150,7 @@ message_handler(game_object_t *obj, message_t *mes)
                 }
                 break;
             case NW:
-                if( map_get_value(mv->map, loc->x - 1, loc->y - 1) != 1 )
+                if( map_get_value(mv->map, loc->x - 1, loc->y - 1) == 0 )
                 {
                     map_move_block(mv->map, loc->x, loc->y, -1, -1);
                     send_move_clear();
@@ -149,7 +158,7 @@ message_handler(game_object_t *obj, message_t *mes)
                 }
                 break;
             case NE:
-                if( map_get_value(mv->map, loc->x + 1, loc->y - 1) != 1 )
+                if( map_get_value(mv->map, loc->x + 1, loc->y - 1) == 0 )
                 {
                     map_move_block(mv->map, loc->x, loc->y, 1, -1);
                     send_move_clear();
@@ -157,7 +166,7 @@ message_handler(game_object_t *obj, message_t *mes)
                 }
                 break;
             case SW:
-                if( map_get_value(mv->map, loc->x - 1, loc->y + 1) != 1 )
+                if( map_get_value(mv->map, loc->x - 1, loc->y + 1) == 0 )
                 {
                     map_move_block(mv->map, loc->x, loc->y, -1, 1);
                     send_move_clear();
@@ -165,7 +174,7 @@ message_handler(game_object_t *obj, message_t *mes)
                 }
                 break;
             case SE:
-                if( map_get_value(mv->map, loc->x + 1, loc->y + 1) != 1 )
+                if( map_get_value(mv->map, loc->x + 1, loc->y + 1) == 0 )
                 {
                     map_move_block(mv->map, loc->x, loc->y, 1, 1);
                     send_move_clear();
@@ -271,6 +280,15 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
                                 32,
                                 32,
                                 brightness, brightness, 0);
+                break;
+            case 'P':
+                lsdl_draw_image(engine,
+                                image_loader_get("portal"),
+                                mv->screen_pos_x + (x - mv->xs) * 32,
+                                mv->screen_pos_y + (y - mv->ys) * 32,
+                                32,
+                                32,
+                                brightness, 0, 0.5*brightness);
                 break;
             default:
                 break;

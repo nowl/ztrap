@@ -131,6 +131,7 @@ void   debug_map_display_file(map_t *map);
 void   map_fill_region(map_t *map, int ul_x, int ul_y, int w, int h, int value);
 void   map_build_bsp(map_t *map, float rec_factor, float decay_factor);
 void   map_random_replace(map_t *map, int orig, int new, float prob);
+void   map_place_once(map_t *map, int orig, int value);
 int    map_get_value(map_t *map, int x, int y);
 void   map_set_value(map_t *map, int x, int y, int value);
 float  map_get_ambiance(map_t *map, int x, int y);

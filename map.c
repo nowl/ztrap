@@ -184,3 +184,20 @@ map_random_replace(map_t *map, int orig, int new, float prob)
             if(map_get_value(map, x, y) == orig && random_float() < prob)
                 map_set_value(map, x, y, new);
 }
+
+void map_place_once(map_t *map, int orig, int value)
+{
+    int placed = 0;
+
+    while(!placed)
+    {
+        int x = random_int_min_max(0, map->width-1);
+        int y = random_int_min_max(0, map->height-1);
+        
+        if(map_get_value(map, x, y) == orig)
+        {
+            map_set_value(map, x, y, value);
+            placed = 1;
+        }
+    }
+}
