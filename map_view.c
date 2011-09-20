@@ -106,7 +106,7 @@ message_handler(game_object_t *obj, message_t *mes)
         }
         else if( map_get_value(mv->map, loc->x, loc->y) == 'P' )
         {            
-            player_object_t *player = game_object_get_by_name("player")->data;
+            //player_object_t *player = game_object_get_by_name("player")->data;
 
             send_move_clear();
             set_new_player_pos = 1;
@@ -242,7 +242,8 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
             darken = 25 * (mv->lighting + mv->light_noise) / d;
             darken = darken > 1.0 ? 1.0 : darken;
             
-            float brightness = darken * map_get_ambiance(mv->map, x, y);
+            //float brightness = darken * map_get_ambiance(mv->map, x, y);
+            float brightness = map_get_visibility(mv->map, x, y);
             switch(map_get_value(mv->map, x, y))
             {
             case 1:
@@ -296,6 +297,29 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
         }
 }
 
+static float opaqueness(int x, int y)
+{
+    map_view_t *mv = game_object_get_by_name("map-view")->data;
+    
+    if(x<0 || y<0 || x>=mv->map->width || y>=mv->map->height)
+        return 1.0;
+
+    int cell = map_get_value(mv->map, x, y);
+
+    if(cell == 1)
+        return 1.0;
+
+    return 0.1;
+}
+
+static void set_visibility(int x, int y, float visibility)
+{
+    map_view_t *mv = game_object_get_by_name("map-view")->data;
+    float val = map_get_visibility(mv->map, mv->player_x + x, mv->player_y + y);
+    if(val < visibility)
+        map_set_visibility(mv->map, mv->player_x + x, mv->player_y + y, visibility);
+}
+
 static void
 update(engine_t *engine, game_object_t *obj, unsigned int ticks)
 {
@@ -311,6 +335,9 @@ update(engine_t *engine, game_object_t *obj, unsigned int ticks)
         mv->lighting = player->light/250.0;
         mv->light_noise = (random_float()-0.5)*mv->lighting;
     }
+
+    /* set lighting */
+    los_run(mv->player_x, mv->player_y, opaqueness, set_visibility);
 }
 
 map_view_t *

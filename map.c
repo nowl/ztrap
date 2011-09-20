@@ -19,6 +19,7 @@ map_create(int w, int h)
     map_t *r = malloc(sizeof(*r));
     r->tiles = malloc(sizeof(*r->tiles) * w * h);
     r->ambiance = malloc(sizeof(*r->ambiance) * w * h);
+    r->visibility = malloc(sizeof(*r->visibility) * w * h);
     r->width = w;
     r->height = h;
 
@@ -39,6 +40,7 @@ map_create(int w, int h)
 void
 map_destroy(map_t *map)
 {
+    free(map->visibility);
     free(map->tiles);
     free(map->ambiance);
     free(map);
@@ -74,6 +76,22 @@ map_get_ambiance(map_t *map, int x, int y)
         return map->ambiance[map->width * y + x];
 
     return 1.0;
+}
+
+void
+map_set_visibility(map_t *map, int x, int y, float value)
+{
+    if(x >= 0 && x < map->width && y >= 0 && y < map->height)
+        map->visibility[map->width * y + x] = value;
+}
+
+float
+map_get_visibility(map_t *map, int x, int y)
+{
+    if(x >= 0 && x < map->width && y >= 0 && y < map->height)
+        return map->visibility[map->width * y + x];
+
+    return 0.0;
 }
 
 void

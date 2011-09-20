@@ -1,11 +1,11 @@
 CC = gcc
 CFLAGS = -Wall -g
-INCLUDES = $(shell sdl-config --cflags) -I../lapis -I/usr/local/include/SDL
-INCLUDES += -I/usr/include/lua5.1
+INCLUDES = $(shell sdl-config --cflags) -I../lapis
+INCLUDES += -I/usr/include/lua
 LDFLAGS = -Wl,-rpath,'.'
-LIBS = -lGL -lGLU $(shell sdl-config --libs) -L/usr/local/lib -lSDL_image
+LIBS = -lGL -lGLU $(shell sdl-config --libs) -lSDL_image
 LIBS += -lSDL_mixer -lSDL_ttf -L. -llapis
-LIBS += -llua5.1
+LIBS += -llua
 
 SRCS = \
 	main.c \

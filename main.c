@@ -39,7 +39,7 @@ int global_message_handler(game_object_t *obj, message_t *mes)
 int main(int argc, char *argv[])
 {
     lapis_init();
-
+    
     engine_t *engine = lapis_get_engine();
     set_ticks_per_second(30);
 

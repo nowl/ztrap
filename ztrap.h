@@ -61,6 +61,7 @@ struct map
     int height;
     int *tiles;
     float *ambiance;
+    float *visibility;
 };
 
 enum direction4
@@ -136,6 +137,8 @@ int    map_get_value(map_t *map, int x, int y);
 void   map_set_value(map_t *map, int x, int y, int value);
 float  map_get_ambiance(map_t *map, int x, int y);
 void   map_set_ambiance(map_t *map, int x, int y, float value);
+float  map_get_visibility(map_t *map, int x, int y);
+void   map_set_visibility(map_t *map, int x, int y, float value);
 
 /* map_view */
 
