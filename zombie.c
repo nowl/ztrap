@@ -28,12 +28,13 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
 {
     zombie_t *data = obj->data;
     map_view_t *mv = game_object_get_by_name("map-view")->data;
-    lsdl_draw_image(engine, image_loader_get("zombie1"),
-                    map_view_pos_to_screen_x(mv, data->x),
-                    map_view_pos_to_screen_y(mv, data->y),
-                    32,
-                    32,
-                    1.0, 0, 0);
+    if( map_get_visibility(mv->map, data->x, data->y) > 0.5 )
+        lsdl_draw_image(engine, image_loader_get("zombie1"),
+                        map_view_pos_to_screen_x(mv, data->x),
+                        map_view_pos_to_screen_y(mv, data->y),
+                        32,
+                        32,
+                        1.0, 0, 0);
 }
 
 static void

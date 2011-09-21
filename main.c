@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
     player_data.x = 1;
     player_data.y = 1;
     player_data.rounds = 5;
-    player_data.light = 500;
+    player_data.light = 650;
     player_data.change_light_timer = player_data.change_light_timer_max = 15;
 
     game_object_t * player = game_object_create("player", &player_data);
@@ -110,7 +110,6 @@ int main(int argc, char *argv[])
     game_state_append_object(state, zc->game_object);
     game_state_append_object(state, player);
     game_state_append_object(state, hud->game_object);
-    
 
     lapis_mainloop();
 

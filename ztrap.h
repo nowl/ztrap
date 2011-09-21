@@ -99,6 +99,8 @@ struct map_view
     int light_noise_timer, light_noise_timer_max;
     game_object_t *game_object;
     int screen_w, screen_h;
+    int vis_radius;
+    char initial_los_calc;
 };
 
 struct player_movement

@@ -1,5 +1,47 @@
 #include "ztrap.h"
 
+static struct {
+    int x, y;
+} *visible_cells = NULL;
+static int visible_cells_i = 0;
+static size_t visible_cells_cap = 0;
+
+
+static int get_blocked(int x, int y)
+{
+    map_view_t *mv = game_object_get_by_name("map-view")->data;
+    
+    if(x<0 || y<0 || x>=mv->map->width || y>=mv->map->height)
+        return 1;
+
+    int cell = map_get_value(mv->map, x, y);
+
+    if(cell == 1)
+        return 1;
+
+    return 0;
+}
+
+static void set_visibility(int x, int y)
+{
+    map_view_t *mv = game_object_get_by_name("map-view")->data;
+
+    float dist = (x-mv->player_x)*(x-mv->player_x) + (y-mv->player_y)*(y-mv->player_y);
+    float light = 2*mv->vis_radius * 1/dist;
+    if(light > 1.0) light = 1.0;
+    
+    map_set_visibility(mv->map, x, y, light);
+
+    /* store for visibility reset */
+    visible_cells = memory_grow_to_size(visible_cells,
+                                        sizeof(*visible_cells),
+                                        &visible_cells_cap,
+                                        visible_cells_i + 1);
+    visible_cells[visible_cells_i].x = x;
+    visible_cells[visible_cells_i].y = y;
+    visible_cells_i++;
+}
+
 static void
 send_move_clear()
 {
@@ -188,6 +230,20 @@ message_handler(game_object_t *obj, message_t *mes)
         {
             mv->player_x = loc->x;
             mv->player_y = loc->y;
+
+            /* set old cells to a lower visibility "fog of war" */
+            int i;
+            for(i=0; i<visible_cells_i; i++)
+            {
+                int x = visible_cells[i].x;
+                int y = visible_cells[i].y;
+
+                map_set_visibility(mv->map, x, y, 0.3);
+            }
+            visible_cells_i = 0;
+
+            /* set visibility */
+            los_visibility(mv->player_x, mv->player_y, mv->vis_radius, get_blocked, set_visibility);
         }
     }
     else if(mes->type == lapis_hash("window-resize"))
@@ -203,6 +259,9 @@ message_handler(game_object_t *obj, message_t *mes)
         int h = mv->screen_h / 32 - 2;
         mv->xe = mv->xs + w - 1;
         mv->ye = mv->ys + h - 1;
+
+        /* set visibility */
+        los_visibility(mv->player_x, mv->player_y, mv->vis_radius, get_blocked, set_visibility);
     }
     else if(mes->type == lapis_hash("bullet-move"))
     {
@@ -297,29 +356,6 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
         }
 }
 
-static float opaqueness(int x, int y)
-{
-    map_view_t *mv = game_object_get_by_name("map-view")->data;
-    
-    if(x<0 || y<0 || x>=mv->map->width || y>=mv->map->height)
-        return 1.0;
-
-    int cell = map_get_value(mv->map, x, y);
-
-    if(cell == 1)
-        return 1.0;
-
-    return 0.1;
-}
-
-static void set_visibility(int x, int y, float visibility)
-{
-    map_view_t *mv = game_object_get_by_name("map-view")->data;
-    float val = map_get_visibility(mv->map, mv->player_x + x, mv->player_y + y);
-    if(val < visibility)
-        map_set_visibility(mv->map, mv->player_x + x, mv->player_y + y, visibility);
-}
-
 static void
 update(engine_t *engine, game_object_t *obj, unsigned int ticks)
 {
@@ -334,10 +370,17 @@ update(engine_t *engine, game_object_t *obj, unsigned int ticks)
         mv->player_y = player->y;
         mv->lighting = player->light/250.0;
         mv->light_noise = (random_float()-0.5)*mv->lighting;
+
+        mv->vis_radius = player->light / 100;
     }
 
-    /* set lighting */
-    los_run(mv->player_x, mv->player_y, opaqueness, set_visibility);
+    if(!mv->initial_los_calc)
+    {
+        mv->initial_los_calc = 1;
+
+        /* set visibility */
+        los_visibility(player->x, player->y, mv->vis_radius, get_blocked, set_visibility);
+    }
 }
 
 map_view_t *
@@ -358,6 +401,8 @@ map_view_create(int screen_pos_x, int screen_pos_y, int width, int height)
     r->game_object->render_level = RL_MAP;
     r->screen_w = 1024;
     r->screen_h = 768;
+    r->vis_radius = 8;
+    r->initial_los_calc = 0;
     game_object_set_recv_callback_c_func(r->game_object, message_handler);
     game_object_set_render_callback_c_func(r->game_object, render);
     game_object_set_update_callback_c_func(r->game_object, update);
@@ -369,7 +414,8 @@ map_view_create(int screen_pos_x, int screen_pos_y, int width, int height)
                                   "window-resize");
     game_state_append_bcast_recvr(lapis_get_engine()->state,
                                   r->game_object,
-                                  "bullet-move");    
+                                  "bullet-move");
+    
     return r;
 }
 
