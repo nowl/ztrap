@@ -73,10 +73,11 @@ int main(int argc, char *argv[])
                                   "sdl-event");
     
     player_object_t player_data;
-    player_data.x = 1;
-    player_data.y = 1;
+    player_data.level = 1;
+    player_data.score = 0;
     player_data.rounds = 5;
     player_data.light = 650;
+    player_data.dead = 0;
     player_data.change_light_timer = player_data.change_light_timer_max = 15;
 
     game_object_t * player = game_object_create("player", &player_data);
@@ -88,20 +89,14 @@ int main(int argc, char *argv[])
 
     zombie_controller_t *zc = zombie_controller_create();
 
-    /* build map */
+    /* build initial map */
 
-    map_t *map = map_create(64, 64);
-    map_build_bsp(map, 0.75, 1.0);
-    map_random_replace(map, 0, 1, 0.1);
-    map_random_replace(map, 1, 0, 0.1);
-    map_random_replace(map, 0, 'r', 1.0/50/50);
-    map_random_replace(map, 0, 'L', 1.0/30/30);
-    map_place_once(map, 0, 'P');
-    //debug_map_display(map);
-    debug_map_display_file(map);
+    map_t *map = map_build(64, 64, 1);
        
     map_view_t *mv = map_view_create(16, 16, 31, 22);
     mv->map = map;
+
+    map_set_good_player_pos(map, &player_data);
 
     /* build hud */
     hud_t *hud = hud_create();
@@ -114,7 +109,7 @@ int main(int argc, char *argv[])
     lapis_mainloop();
 
     map_view_destroy(mv);
-    map_destroy(map);
+    //map_destroy(mv->map);
 
     /* this will be cleaned up by the OS */
     //game_state_destroy(state);

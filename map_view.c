@@ -25,12 +25,15 @@ static int get_blocked(int x, int y)
 static void set_visibility(int x, int y)
 {
     map_view_t *mv = game_object_get_by_name("map-view")->data;
+    map_set_visibility(mv->map, x, y, 1.0);
 
-    float dist = (x-mv->player_x)*(x-mv->player_x) + (y-mv->player_y)*(y-mv->player_y);
-    float light = 2*mv->vis_radius * 1/dist;
-    if(light > 1.0) light = 1.0;
-    
-    map_set_visibility(mv->map, x, y, light);
+    /* if undiscovered then increase score */
+    if(!map_get_discovered(mv->map, x, y))
+    {
+        player_object_t *player = game_object_get_by_name("player")->data;
+        map_set_discovered(mv->map, x, y, 1);
+        player->score++;
+    }
 
     /* store for visibility reset */
     visible_cells = memory_grow_to_size(visible_cells,
@@ -126,14 +129,14 @@ message_handler(game_object_t *obj, message_t *mes)
             send_move_clear();
             set_new_player_pos = 1;
         }
-        else if( map_get_value(mv->map, loc->x, loc->y) == 'r' )
+        else if( map_get_value(mv->map, loc->x, loc->y) == 'R' )
         {
             player_object_t *player = game_object_get_by_name("player")->data;
 
             send_move_clear();
             set_new_player_pos = 1;
             
-            player->rounds += 5;
+            player->rounds += 2;
             map_set_value(mv->map, loc->x, loc->y, 0);
         }
         else if( map_get_value(mv->map, loc->x, loc->y) == 'L' )
@@ -143,17 +146,20 @@ message_handler(game_object_t *obj, message_t *mes)
             send_move_clear();
             set_new_player_pos = 1;
 
-            player->light += 100;
+            player->light += 40;
             map_set_value(mv->map, loc->x, loc->y, 0);
         }
         else if( map_get_value(mv->map, loc->x, loc->y) == 'P' )
         {            
-            //player_object_t *player = game_object_get_by_name("player")->data;
+            player_object_t *player = game_object_get_by_name("player")->data;
 
             send_move_clear();
             set_new_player_pos = 1;
 
-            LOG("moving to next level\n");
+            player->level++;
+
+            map_destroy(mv->map);
+            mv->map = map_build(64, 64, player->level);
         }
         else if(map_get_value(mv->map, loc->x, loc->y) == 1 )
         {
@@ -238,7 +244,7 @@ message_handler(game_object_t *obj, message_t *mes)
                 int x = visible_cells[i].x;
                 int y = visible_cells[i].y;
 
-                map_set_visibility(mv->map, x, y, 0.3);
+                map_set_visibility(mv->map, x, y, FOG_OF_WAR_VIS);
             }
             visible_cells_i = 0;
 
@@ -263,7 +269,7 @@ message_handler(game_object_t *obj, message_t *mes)
         /* set visibility */
         los_visibility(mv->player_x, mv->player_y, mv->vis_radius, get_blocked, set_visibility);
     }
-    else if(mes->type == lapis_hash("bullet-move"))
+    else if(mes->type == lapis_hash("bullet-pos"))
     {
         map_view_t *mv = obj->data;
         player_movement_t *loc = mes->data->data;
@@ -282,12 +288,6 @@ message_handler(game_object_t *obj, message_t *mes)
     return 0;
 }
 
-static int
-dist(int x, int y, int nx, int ny)
-{
-    return (nx-x)*(nx-x) + (ny-y)*(ny-y);
-}
-
 static void
 render(engine_t *engine, game_object_t *obj, float interpolation)
 {
@@ -296,13 +296,11 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
     for(y=mv->ys; y<=mv->ye; y++)
         for(x=mv->xs; x<=mv->xe; x++)
         {
-            int d = dist(mv->player_x, mv->player_y, x, y);
-            float darken;
-            darken = 25 * (mv->lighting + mv->light_noise) / d;
-            darken = darken > 1.0 ? 1.0 : darken;
-            
-            //float brightness = darken * map_get_ambiance(mv->map, x, y);
-            float brightness = map_get_visibility(mv->map, x, y);
+            //float dist = (x-mv->player_x)*(x-mv->player_x) + (y-mv->player_y)*(y-mv->player_y);
+            //float darken = 5.0 / dist;
+            float vis = map_get_visibility(mv->map, x, y);
+            float brightness = vis;
+                        
             switch(map_get_value(mv->map, x, y))
             {
             case 1:
@@ -323,7 +321,7 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
                                 32,
                                 brightness, brightness, brightness);
                 break;
-            case 'r':
+            case 'R':
                 lsdl_draw_image(engine, 
                                 image_loader_get("round"),
                                 mv->screen_pos_x + (x - mv->xs) * 32,
@@ -368,14 +366,13 @@ update(engine_t *engine, game_object_t *obj, unsigned int ticks)
         
         mv->player_x = player->x;
         mv->player_y = player->y;
-        mv->lighting = player->light/250.0;
-        mv->light_noise = (random_float()-0.5)*mv->lighting;
+        //mv->light_noise = (random_float()-0.5)*mv->vis_radius;
 
         mv->vis_radius = player->light / 100;
-    }
+    }    
 
     if(!mv->initial_los_calc)
-    {
+    {        
         mv->initial_los_calc = 1;
 
         /* set visibility */
@@ -389,7 +386,6 @@ map_view_create(int screen_pos_x, int screen_pos_y, int width, int height)
     map_view_t *r = malloc(sizeof(*r));
     r->map = NULL;
     r->light_noise = 0;
-    r->lighting = 0;
     r->light_noise_timer = r->light_noise_timer_max = 10;
     r->screen_pos_x = screen_pos_x;
     r->screen_pos_y = screen_pos_y;
@@ -401,7 +397,7 @@ map_view_create(int screen_pos_x, int screen_pos_y, int width, int height)
     r->game_object->render_level = RL_MAP;
     r->screen_w = 1024;
     r->screen_h = 768;
-    r->vis_radius = 8;
+    r->vis_radius = 6;
     r->initial_los_calc = 0;
     game_object_set_recv_callback_c_func(r->game_object, message_handler);
     game_object_set_render_callback_c_func(r->game_object, render);
@@ -414,7 +410,7 @@ map_view_create(int screen_pos_x, int screen_pos_y, int width, int height)
                                   "window-resize");
     game_state_append_bcast_recvr(lapis_get_engine()->state,
                                   r->game_object,
-                                  "bullet-move");
+                                  "bullet-pos");
     
     return r;
 }

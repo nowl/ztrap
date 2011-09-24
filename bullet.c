@@ -54,15 +54,15 @@ update(engine_t *engine, game_object_t *obj, unsigned int ticks)
             bullet_remove_and_destroy(data);
             return;
         }
-
-        player_movement_t *loc = malloc(sizeof(*loc));
-        loc->x = data->x;
-        loc->y = data->y;
-        ref_t *ref = ref_create(loc);
-        message_t *mes = message_create(obj, NULL, "bullet-move", ref);
-        message_deliver(mes, SYNC);
-        ref_dec(ref);
     }
+
+    player_movement_t *loc = malloc(sizeof(*loc));
+    loc->x = data->x;
+    loc->y = data->y;
+    ref_t *ref = ref_create(loc);
+    message_t *mes = message_create(obj, NULL, "bullet-pos", ref);
+    message_deliver(mes, SYNC);
+    ref_dec(ref);
 }
 
 bullet_t *

@@ -4,6 +4,8 @@
 #include "lapis.h"
 #include "charset.h"
 
+#define FOG_OF_WAR_VIS 0.3
+
 /* data structures */
 
 typedef struct player_object player_object_t;
@@ -50,6 +52,9 @@ struct player_object
     int x, y, nx, ny;
     int rounds;
     int light;
+    int level;
+    int score;
+    char dead;
     
     unsigned long change_light_timer;
     unsigned long change_light_timer_max;
@@ -62,6 +67,7 @@ struct map
     int *tiles;
     float *ambiance;
     float *visibility;
+    char *discovered;
 };
 
 enum direction4
@@ -95,7 +101,7 @@ struct map_view
     int screen_pos_x, screen_pos_y;
     int xs, xe, ys, ye;
     int player_x, player_y;
-    float lighting, light_noise;
+    float light_noise;
     int light_noise_timer, light_noise_timer_max;
     game_object_t *game_object;
     int screen_w, screen_h;
@@ -131,16 +137,17 @@ map_t *map_create(int w, int h);
 void   map_destroy(map_t *map);
 void   debug_map_display(map_t *map);
 void   debug_map_display_file(map_t *map);
-void   map_fill_region(map_t *map, int ul_x, int ul_y, int w, int h, int value);
-void   map_build_bsp(map_t *map, float rec_factor, float decay_factor);
-void   map_random_replace(map_t *map, int orig, int new, float prob);
-void   map_place_once(map_t *map, int orig, int value);
 int    map_get_value(map_t *map, int x, int y);
 void   map_set_value(map_t *map, int x, int y, int value);
 float  map_get_ambiance(map_t *map, int x, int y);
 void   map_set_ambiance(map_t *map, int x, int y, float value);
 float  map_get_visibility(map_t *map, int x, int y);
 void   map_set_visibility(map_t *map, int x, int y, float value);
+char   map_get_discovered(map_t *map, int x, int y);
+void   map_set_discovered(map_t *map, int x, int y, char value);
+
+void map_set_good_player_pos(map_t *map, player_object_t *player);
+map_t *map_build(int width, int height, int level);
 
 /* map_view */
 

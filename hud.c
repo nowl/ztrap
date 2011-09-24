@@ -28,6 +28,20 @@ render(engine_t *engine, game_object_t *obj, float interpolation)
                    text, 0, 255, 0, 210, mv->screen_h-64+15);
     free(text);
 
+    asprintf(&text, "%d", player->level);
+    lsdl_draw_text(engine, "VeraMono.ttf", 16,
+                   "Level", 255, 255, 255, 10, mv->screen_h-64+15+16);
+    lsdl_draw_text(engine, "VeraMono.ttf", 16,
+                   text, 0, 255, 0, 90, mv->screen_h-64+15+16);
+    free(text);
+
+    asprintf(&text, "%d", player->score);
+    lsdl_draw_text(engine, "VeraMono.ttf", 16,
+                   "Score", 255, 255, 255, 150, mv->screen_h-64+15+16);
+    lsdl_draw_text(engine, "VeraMono.ttf", 16,
+                   text, 0, 255, 0, 210, mv->screen_h-64+15+16);
+    free(text);
+
     zombie_controller_t *zc = game_object_get_by_name("zombie-controller")->data;
     asprintf(&text, "%d", zc->active_zombie_counter);
     lsdl_draw_text(engine, "VeraMono.ttf", 16,

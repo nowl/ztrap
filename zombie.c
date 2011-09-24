@@ -5,7 +5,7 @@ message_handler(game_object_t *obj, message_t *mes)
 {
     zombie_t *z = obj->data;
 
-    if(mes->type == lapis_hash("bullet-move"))
+    if(mes->type == lapis_hash("bullet-pos"))
     {
         player_movement_t *loc = mes->data->data;
 
@@ -17,6 +17,10 @@ message_handler(game_object_t *obj, message_t *mes)
             /* also destroy the bullet */
             bullet_t * bullet = mes->sender->data;
             bullet->destroy = 1;
+
+            /* increase score */
+            player_object_t *player = game_object_get_by_name("player")->data;
+            player->score += 500;
         }
     }
     
@@ -82,6 +86,10 @@ update(engine_t *engine, game_object_t *obj, unsigned int ticks)
             data->x = path[1].x;
             data->y = path[1].y;
         }
+
+        /* check player death */
+        if(data->x == player->x && data->y == player->y)
+            player->dead = 1;
     }
 }
 
@@ -100,7 +108,7 @@ zombie_create(char *name)
     
     game_state_append_bcast_recvr(lapis_get_engine()->state,
                                   z->game_object,
-                                  "bullet-move");
+                                  "bullet-pos");
     return z;
 }
 

@@ -162,6 +162,9 @@ attempt_fire(int key, game_object_t *obj)
 
 int player_message_handler(game_object_t *obj, message_t *mes)
 {
+    if(((player_object_t*)(obj->data))->dead)
+        return 1;
+
     if(mes->type == lapis_hash("sdl-event"))
     {
         SDL_Event *event = mes->data->data;

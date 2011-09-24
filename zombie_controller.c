@@ -33,9 +33,12 @@ new_zombie(zombie_controller_t *zc)
     
     /* make zombies faster when there are more active zombies in the
      * game world */
+    /*
     int timer = 30 - zc->active_zombie_counter;
     if(timer <= 1) timer = 1;
     zom->next_path_timer_max = timer;
+    */
+    zom->next_path_timer_max = random_int_min_max(10, 30);
 
     //LOG("new zombie \"%s\" at %d, %d\n", zombie_name, x, y);
 
