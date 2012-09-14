@@ -1,5 +1,7 @@
 #include "ztrap.h"
 
+#if 0
+
 static int
 message_handler(game_object_t *obj, message_t *mes)
 {
@@ -117,3 +119,5 @@ zombie_destroy(zombie_t *z)
 {
     free(z);
 }
+
+#endif

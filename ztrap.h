@@ -4,6 +4,8 @@
 #include "lapis.h"
 #include "charset.h"
 
+#if 0
+
 #define FOG_OF_WAR_VIS 0.3
 
 /* data structures */
@@ -127,7 +129,7 @@ enum render_level
 
 /* player */
 
-int  player_message_handler(game_object_t *obj, message_t *mes);
+//int  player_message_handler(game_object_t *obj, message_t *mes);
 void player_render(engine_t *engine, game_object_t *obj, float interpolation);
 void player_update(engine_t *engine, game_object_t *obj, unsigned int ticks);
 
@@ -176,5 +178,6 @@ void      bullet_destroy(bullet_t *z);
 hud_t *hud_create();
 void   hud_destroy(hud_t *h);
 
+#endif  /* if 0 */
 
 #endif  /* __ZTRAP_H__ */

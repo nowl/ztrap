@@ -1,5 +1,7 @@
 #include "ztrap.h"
 
+#if 0
+
 static void
 new_zombie(zombie_controller_t *zc)
 {
@@ -91,3 +93,5 @@ zombie_controller_destroy(zombie_controller_t *zc)
 {
     free(zc);
 }
+
+#endif

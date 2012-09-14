@@ -1,5 +1,7 @@
 #include "ztrap.h"
 
+#if 0
+
 static int
 message_handler(game_object_t *obj, message_t *mes)
 {
@@ -91,3 +93,5 @@ bullet_destroy(bullet_t *b)
 {
     free(b);
 }
+
+#endif

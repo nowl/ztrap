@@ -1,5 +1,7 @@
 #include "ztrap.h"
 
+#if 0
+
 static int bullet_counter = 0;
 
 static void
@@ -251,3 +253,4 @@ void player_update(engine_t *engine, game_object_t *obj, unsigned int ticks)
         ref_dec(ref);
     }
 }
+#endif

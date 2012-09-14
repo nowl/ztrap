@@ -1,5 +1,5 @@
 #include "ztrap.h"
-
+#if 0
 int global_message_handler(game_object_t *obj, message_t *mes)
 {
     if(mes->type == lapis_hash("sdl-event"))
@@ -35,9 +35,11 @@ int global_message_handler(game_object_t *obj, message_t *mes)
 
     return 0;
 }                    
+#endif
 
 int main(int argc, char *argv[])
 {
+#if 0
     lapis_init();
     
     engine_t *engine = lapis_get_engine();
@@ -114,6 +116,39 @@ int main(int argc, char *argv[])
     /* this will be cleaned up by the OS */
     //game_state_destroy(state);
     //lapis_deinit();
+
+#endif
+
+    struct entity *e = create_entity("testing");
+    entity_set_meta(e, "render:final", 5, NULL);
+    entity_set_meta(e, "render:final", 6, NULL);
+    struct entity_meta *meta = entity_get_meta(e, "render:final");
+    printf("%d\n", meta->type);
+
+    struct component *c = create_component("renderable");
+    component_add_responder(c, 0);
+    c = create_component("foo component");
+    component_add_responder(c, 0);
+
+    struct component_list *cl = component_responder_lookup(0);
+    for(; cl; cl = cl->next)
+    {
+        printf("responder component name = %s\n", cl->component.name);
+    }
+
+    destroy_component(c);
+
+    printf("destroyed component\n");
+
+    cl = component_responder_lookup(0);
+    for(; cl; cl = cl->next)
+    {
+        printf("responder component name = %s\n", cl->component.name);
+    }
+
+    destroy_entity(e);
+
+    cleanup_mempools();
 
     return 0;
 }

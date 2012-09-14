@@ -3,9 +3,8 @@ CFLAGS = -Wall -g
 INCLUDES = $(shell sdl-config --cflags) -I../lapis
 INCLUDES += -I/usr/include/lua
 LDFLAGS = -Wl,-rpath,'.'
-LIBS = -lGL -lGLU $(shell sdl-config --libs) -lSDL_image
-LIBS += -lSDL_mixer -lSDL_ttf -L. -llapis
-LIBS += -llua
+LIBS =  -L. -llapis -lGL -lGLU $(shell sdl-config --libs) -lSDL_image
+LIBS += -lSDL_ttf -llua5.1
 
 SRCS = \
 	main.c \

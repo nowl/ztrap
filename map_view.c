@@ -1,5 +1,6 @@
 #include "ztrap.h"
 
+#if 0
 static struct {
     int x, y;
 } *visible_cells = NULL;
@@ -432,3 +433,4 @@ map_view_pos_to_screen_y(map_view_t *mv, int y)
 {
     return mv->screen_pos_y + (y - mv->ys) * 32;
 }
+#endif
